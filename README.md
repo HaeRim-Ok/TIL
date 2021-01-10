@@ -1,8 +1,15 @@
-### README
+# Today I Learned
 
-- 오늘 배운 내용을 지속적으로 학습, 정리하는 repo입니다.
+## git
 
-- `2021-01-07` ~ing
+- [git-command](linux/command.md)
+- [git-commit](linux/command.md)
 
-  
+## linux
+
+- [command](linux/command.md)
+
+## web scraping
+
+- [기상청_날씨데이터_추출](web scrapnig/기상청_날씨데이터_추출.ipynb)
 
