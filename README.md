@@ -11,5 +11,5 @@
 
 ## web scraping
 
-- [기상청_날씨데이터_추출.ipynb](https://github.com/mementohaeri/TIL/blob/master/web scrapnig/기상청_날씨데이터_추출.ipynb)
+- [기상청_날씨데이터_추출.ipynb](https://github.com/mementohaeri/TIL/blob/master/web_scrapnig/기상청_날씨데이터_추출.ipynb)
 
