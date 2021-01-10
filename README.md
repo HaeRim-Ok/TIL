@@ -2,8 +2,8 @@
 
 ## git
 
-- [git-command](linux/command.md)
-- [git-commit](linux/command.md)
+- [git-command](git/git-command.md)
+- [git-commit](git/git-commit.md)
 
 ## linux
 
@@ -11,5 +11,5 @@
 
 ## web scraping
 
-- [기상청_날씨데이터_추출](web scrapnig/기상청_날씨데이터_추출.ipynb)
+- [기상청_날씨데이터_추출.ipynb](https://github.com/mementohaeri/TIL/blob/master/web scrapnig/기상청_날씨데이터_추출.ipynb)
 
