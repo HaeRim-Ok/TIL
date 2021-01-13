@@ -18,6 +18,6 @@
 ## django
 - [DjangoProductApp_Basic_Model](django/DjangoProductApp_Basic_Model.md)
 
-
+- [DjangoProductApp_URL_View_Templates](django/DjangoProductApp_URL_View_Templates.md)
 
 
