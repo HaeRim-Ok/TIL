@@ -16,6 +16,8 @@
 - [뉴스_제목_추출](https://github.com/mementohaeri/TIL/blob/master/web_scrapnig/뉴스_제목_추출.ipynb)
 
 ## django
-- [DjangoProductApp_Basic_Model](django/DjangoProductApp - Basic, Model.md)
+- [DjangoProductApp_Basic_Model](django/DjangoProductApp_Basic_Model.md)
+
+
 
 
