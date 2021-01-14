@@ -267,7 +267,7 @@ def post_list(request):
 >
 > 한 번만 수정하면 되기 때문에 유지보수에 용이하다.
 
-1. 기본 템플릿 html (base.html) 생성
+1. 기본 템플릿 html (base.html) 생성 - 부모
 
 - product/templates/product/base.html 생성
 
@@ -303,7 +303,7 @@ def post_list(request):
   </html>
   ```
 
-2. post_list.html 수정
+2. post_list.html 수정 - 자식
 
 - product/templates/product/post_list.html
 
@@ -329,13 +329,13 @@ def post_list(request):
 
 
 
-### 글 상세 페이지 작성
+### Post Detail (글 상세) 페이지 작성하기
 
 1. urls.py에 url 추가
 
 - product/urls.py 수정
 - post/ : URL이 POST 문자를 포함해야 함
-- pk 변수에 값을 넣어서 view로 전송하겠다는 의미
+- pk 변수에 값을 넣어서 post_detail view로 전송하겠다는 의미
 
 ```html
 from django.urls import path
@@ -376,3 +376,24 @@ def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
     return render(request,'product/post_detail.html', {'post': post})
 ```
+
+4. post_list.html에 post detail 링크 추가
+
+- {post.name} 클릭 시, 상세 페이지로 이동 가능
+
+```
+{% extends 'product/base.html'%}
+
+{% block content %}
+    {% for post in posts %}
+    <div class="post">
+        <div class="date">
+            <p>Posted: {{post.posted_date}}</p>
+        </div>
+        <h4><a href="{% url 'post_detail' pk=post.pk %}">{{post.name}}</a></h4>
+        <p>{{post.desc|linebreaksbr}}</p>
+    </div>
+    {% endfor %}
+{% endblock %}
+```
+
