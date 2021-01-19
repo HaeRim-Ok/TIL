@@ -83,15 +83,22 @@ $ code selenium_test.py
 
 ## 2. selenium_test.py
 
+개발자 도구를 통해 구글 검색 필드의 name="q" 임을 확인 -> q 필드 제어 가능
 ```python
 from selenium import webdriver
 
-# windows -> path에 \ 하나씩 더 추가
+# path에 \ 하나씩 더 추가
 path = "C:\\Users\\Lenovo\\Desktop\\cloud-service\\webdriver\\chromedriver.exe"
 driver = webdriver.Chrome(path)
 
-driver.get("https://www.naver.com")
-print(driver.title) # 탭의 이름 
+driver.get("https://www.google.com")
+print(driver.title) # 탭의 이름 출력
+
+# 입력 필드에 대한 정보
+search_box = driver.find_element_by_name("q")     
+# 입력 필드에 검색어 넣고 엔터
+search_box.send_keys("cloud computing") 
+search_box.submit()   
 ```
 
 
