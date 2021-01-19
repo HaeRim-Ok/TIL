@@ -81,7 +81,7 @@ $ scrapy shell
 
 3. 웹 페이지의 '뉴스 제목'만 추출
    - 개발자 도구를 통해 추출하고자 하는 데이터의 태그를 찾는다.
-   - <a> 태그의 xpath를 복사하여 반복적인 패턴에 의해 가져올 수 있는 정보를 가져온다. 
+   - a 태그의 xpath를 복사하여 반복적인 패턴에 의해 가져올 수 있는 정보를 가져온다. 
      - 추출하고자 하는 데이터에 따라 태그의 속성, 태그 종류 등 상이할 수 있음
 
 ```
@@ -89,14 +89,14 @@ $ scrapy shell
 ```
 
 4. 웹 페이지의 '신문사'만 추출
-   - <span class="writing">
+   - span class="writing"
 
 ```
 > response.css('.writing::text').extract()
 ```
 
 5. 웹 페이지의 '미리보기 내용'만 추출
-   - <span class="lede">
+   - span class="lede"
 
 ```
 > response.css('.lede::text').extract()
