@@ -33,15 +33,49 @@ $ conda info --envs
 ## 1. Selenium 설치
 
 1. https://chromedriver.storage.googleapis.com/index.html?path=87.0.4280.88/ 접속
+   
    - windows version 설치
-2. selenium 설치 : (powershell / cmd) `pip install selenium`
-3. 가상환경 생성 : `conda create --name [가상환경]` 
-4. 가상환경 진입 : `conda activate [가상환경]`
-   - Anaconda Prompt가 에러 발생할 확률 낮음
-5. 가상환경 내 라이브러리 설치 : `conda install selenium` / `pip install selenium`
+   
+2. selenium 설치  (powershell / cmd) 
 
-6. 경로 변경 : `cd C:\Users\Lenovo\Work\git`
-7. 새 파일 생성 : `code selenium_test.py`
+```
+$ pip install selenium
+```
+
+
+3. 가상환경 생성  
+
+```
+$ conda create --name [가상환경]
+```
+
+4. 가상환경 진입  
+   - Anaconda Prompt가 에러 발생할 확률 낮음
+
+```
+$ conda activate [가상환경]
+```
+
+5. 가상환경 내 라이브러리 설치  (둘 중 하나)
+
+```
+$ conda install selenium
+$ pip install selenium
+```
+
+6. 경로 변경  
+
+```
+$ cd C:\Users\Lenovo\Work\git
+```
+
+7. 새 파일 생성 
+
+```
+$ code selenium_test.py
+```
+
+
 
 
 
@@ -49,15 +83,17 @@ $ conda info --envs
 
 ## 2. selenium_test.py
 
-```
+```python
 from selenium import webdriver
 
 # windows -> path에 \ 하나씩 더 추가
 path = "C:\\Users\\Lenovo\\Desktop\\cloud-service\\webdriver\\chromedriver.exe"
-webdriver.Chrome(path)
+driver = webdriver.Chrome(path)
 
 driver.get("https://www.naver.com")
+print(driver.title) # 탭의 이름 
 ```
+
 
 
 
