@@ -18,7 +18,12 @@
 - [selenium_test3](web_scrapnig/selenium/selenium_test3.py)
 ### scrapy
 - [scrapy](web_scrapnig/scrapy/scrapy.md)
-<br/><br/>
+
+- [mymovie](web_scrapnig/scrapy/mymovie)
+
+- [myscraper](web_scrapnig/scrapy/myscraper)
+
+  <br/><br/>
 
 ## django
 - [DjangoProductApp_Basic_Model](django/DjangoProductApp_Basic_Model.md)
