@@ -14,6 +14,7 @@ $ git clone https://github.com/mementohaeri/my-second-herokuapp.git
 
 4. `npm init` : node 프로그램을 시작하는 명령어로 package.json 파일을 생성한다.
 - 앞으로 node.js 코드를 작성할 예정
+
 ![image-20210202225250398](integration.assets/image-20210202225250398.png)
 <br/>
 
@@ -51,6 +52,7 @@ app.listen(port, ()=> console.log('Example app listening on port 3000'))
 <br/>
 
 7. `npm start` 입력 후 127.0.0.1:3000 로 접속하여 정상적으로 접속되는지 확인한다.
+
 ![image-20210202230239011](integration.assets/image-20210202230239011.png)
 
 ![image-20210202230304851](integration.assets/image-20210202230304851.png)
@@ -60,26 +62,32 @@ app.listen(port, ()=> console.log('Example app listening on port 3000'))
 - 단, `git add app.js package.json` 와 같이 필요한 파일만 업로드하기 (필요없는 파일 용량차지 할 수 있다)
 
 9. 2번 단계로 돌아가서 heroku 웹페이지의 App Connected to Github 섹션에서 repo이름을 적고 'Connect' 누른다. 빈 repo가 아니므로 이번에는 연결된다!
+
 ![image-20210202230817272](integration.assets/image-20210202230817272.png)
 <br/>
 
 10. 본격적으로 github와 heroku를 연동하기 위해 heroku cli인 heroku toolbelt를 설치한다. 
 정상적으로 설치가 되었는지 확인하려면 `heroku --version` -> `heroku login` -> `heroku list`를 통해 현재 생성된 앱을 확인한다.
+
 ![image-20210202231401630](integration.assets/image-20210202231401630.png)
 <br/>
 
 11. `heroku git:remote -a [앱 이름]` 와 `git remote -v` 명령어 수행을 통해 아래와 같이 총 4개의 git주소가 나타남을 확인한다.
+
 ![image-20210202231456137](integration.assets/image-20210202231456137.png)
 <br/>
 
-12. `git push heroku master` : heroku로 배포작업을 시작한다.
+12. `git push heroku master` : heroku로 배포작업을 시작한다.\
+
 ![image-20210202231744555](integration.assets/image-20210202231744555.png)
 
 ![image-20210202231801590](integration.assets/image-20210202231801590.png)
 <br/>
 
 마지막 작업 창에 나오는 도메인 주소는 브라우저 및 휴대폰을 통해 접속 가능하다.
+
 ![image-20210202231905557](integration.assets/image-20210202231905557.png) 
 <br/>
 
 13.  이후 heroku와 github이 제대로 연동되었다면 Automatic deploys, Manual deploy도 가능하다.
+
