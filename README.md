@@ -1,5 +1,11 @@
 # Today I Learned
 
+## AWS
+- [AWS_Cloud_Practitioner_Korean_Dump(p.1~3)](AWS/AWS_Cloud_Practitioner_Korean_Dump(p.1~3).md)
+- [AWS_Cloud_Practitioner_Korean_Dump(p.4~6)](AWS/AWS_Cloud_Practitioner_Korean_Dump(p.4~6).md)
+<br/><br/>
+
+
 ## git
 - [git-command](git/git-command.md)
 - [git-commit](git/git-commit.md)
