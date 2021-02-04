@@ -77,7 +77,7 @@ app.listen(port, ()=> console.log('Example app listening on port 3000'))
 ![image-20210202231456137](integration.assets/image-20210202231456137.png)
 <br/>
 
-12. `git push heroku master` : heroku로 배포작업을 시작한다.\
+12. `git push heroku master` : heroku로 배포작업을 시작한다.
 
 ![image-20210202231744555](integration.assets/image-20210202231744555.png)
 
