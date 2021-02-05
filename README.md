@@ -2,8 +2,12 @@
 
 ## AWS
 - [AWS_Cloud_Practitioner_Korean_Dump(p.1~3)](AWS/AWS_Cloud_Practitioner_Korean_Dump(p.1~3).md)
+
 - [AWS_Cloud_Practitioner_Korean_Dump(p.4~6)](AWS/AWS_Cloud_Practitioner_Korean_Dump(p.4~6).md)
-<br/><br/>
+
+- [AWS_Cloud_Practitioner_Korean_Dump(p.7~9)](AWS/AWS_Cloud_Practitioner_Korean_Dump(p.7~9).md)
+
+  <br/><br/>
 
 
 ## git
