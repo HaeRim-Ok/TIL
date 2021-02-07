@@ -27,7 +27,7 @@
 - 컨테이너는 독립적인 공간을 가져 서로 영향을 주지 않음
 - **컨테이너 생성 속도 빠름 (1-2초 내)**
 
-![image-20210207221405058](docker_intro.assets/image-20210207221405058.png)
+![image-50px](docker_intro.assets/image-20210207221405058.png)
 <br/>
 
 **Docker Image** (= OS + Middleware) : 컨테이너 실행에 필요한 파일과 설정값 등을 포함 
@@ -35,13 +35,13 @@
 - **상태값 없음** -> 고유한 정보가 없다.
 - **실체화** -> Container (실행하는 환경에 따라 정보가 추가되어 사용할 수 있는 상태) 
 
-![image-20210207213841495](docker_intro.assets/image-20210207213841495.png)
+![image-50px](docker_intro.assets/image-20210207213841495.png)
 
 - Docker Hub (public) 에 등록하거나 Docker Repository (private) 저장소를 만들어 관리한다. 
 -> 공개된 도커 이미지는 50만개 이상, 다운로드 수는 80억회 이상
 - **Layer 저장방식** : 유니온 파일 시스템을 이용하여 여러 개의 layer를 하나의 파일 시스템으로 사용
 
-![image-20210207213833636](docker_intro.assets/image-20210207213833636.png)
+![image-50px](docker_intro.assets/image-20210207213833636.png)
 
 <br/>
 
