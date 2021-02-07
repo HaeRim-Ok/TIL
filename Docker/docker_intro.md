@@ -1,14 +1,16 @@
 # Docker
 
 > 컨테이너 기반의 오픈소스 가상화 플랫폼
+>
 > Back-end Program, DB, Message Queue를 컨테이너로 추상화 가능하다.
+> 
 > 일반 pc, AWS, Azure, Google Cloud 등에서 실행 가능하다. 
 
-
 <br/>
+
 1. 기존 가상화 방식 
-- OS를 가상화
-- VMWare, VirtualBox (HostOS 위에 GuestOS 전체를 가상화)
+- OS 를 가상화
+- VMWare, VirtualBox (HostOS위에 GuestOS 전체를 가상화)
 - 무겁고 느림
 <br/>
 
@@ -97,7 +99,7 @@ $ docker run ubuntu:16.04
 
 -  `docker run -d -p 3306:3306 -e MYSQL_ALLOW_EMPTY_PASSWORD=true --name mysql mysql:5.7`  -> host port(3306): container port(3306) 
 
-   - 다음과 같은 오류 발생 시 `docker container rm mysql`을 통해 mysql 컨테이너 삭제
+   - 다음과 같은 오류 발생 시 `docker container rm mysql`을 통해 mysql 컨테이너 삭제<br/>
    Error response from daemon: Conflict. The container name "/mysql" is already in use by container "36a488c0b3fe7deb3758954f8118e1f956911b0aee4a48dc6702e8f9a1d44e77". You have to remove (or rename) that container to be able to reuse that name.
 -  `docker exec -it mysql bash` : 생성한 mysql 컨테이너 안으로 접속
 -  `mysql -h127.0.0.1 -uroot -p` : mysql로 접속
