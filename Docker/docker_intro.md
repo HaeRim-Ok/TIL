@@ -27,7 +27,7 @@
 - 컨테이너는 독립적인 공간을 가져 서로 영향을 주지 않음
 - **컨테이너 생성 속도 빠름 (1-2초 내)**
 
-<image src="docker_intro.assets/image-20210207221405058.png" height="100px" width="200px">
+<image src="docker_intro.assets/image-20210207221405058.png" height="500px" width="1000px">
 <br/>
 
 **Docker Image** (= OS + Middleware) : 컨테이너 실행에 필요한 파일과 설정값 등을 포함 
