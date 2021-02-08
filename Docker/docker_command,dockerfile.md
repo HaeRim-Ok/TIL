@@ -90,7 +90,7 @@ $ docker inspect ${CONTAINER/IMAGE_ID}
 - 작업 프로젝트 데이터인 Application file과 이미지 빌드용 DSL인 Dockrfile이 더해져 Docker Image가 생성된다.
 -  DSL : Domain Specific Language
 
-![image-20210208220539349](docker_command,dockerfile.assets/107226074-ff700900-6a5c-11eb-9a78-4357b29bda52.png)
+![image-20210208220539349](https://user-images.githubusercontent.com/77096463/107226074-ff700900-6a5c-11eb-9a78-4357b29bda52.png)
 
 <br/>
 <br/>
