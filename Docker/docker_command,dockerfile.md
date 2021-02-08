@@ -82,7 +82,7 @@ $ docker inspect ${CONTAINER/IMAGE_ID}
 
 애플리케이션을 이미지로 만들기 위해 리눅스만 설치된 컨테이너에 애플리케이션을 설치하고 그 상태를 그대로 이미지로 저장하는 단순한 방식이다.  Add files는 설치, 설정, 시작 파일 등으로 구성된다.
 
-![image-20210208220220259](docker.assets/image-20210208220220259.png)
+![image-20210208220220259](https://user-images.githubusercontent.com/77096463/107226061-f848fb00-6a5c-11eb-89a4-97f3eddb8930.png)
 
 <br/>
 
@@ -90,7 +90,7 @@ $ docker inspect ${CONTAINER/IMAGE_ID}
 - 작업 프로젝트 데이터인 Application file과 이미지 빌드용 DSL인 Dockrfile이 더해져 Docker Image가 생성된다.
 -  DSL : Domain Specific Language
 
-![image-20210208220539349](docker.assets/image-20210208220539349.png)
+![image-20210208220539349](docker_command,dockerfile.assets/107226074-ff700900-6a5c-11eb-9a78-4357b29bda52.png)
 
 <br/>
 <br/>
