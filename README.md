@@ -9,7 +9,12 @@
 
 ## Docker
 - [docker_intro](Docker/docker_intro.md)
-<br/><br/>
+
+- [docker_command,dockerfile](Docker/docker_command,dockerfile.md)
+
+- [django_project_deploy](Docker/django_project_deploy.md)
+
+  <br/><br/>
 
 ## git
 - [git-command](git/git-command.md)
