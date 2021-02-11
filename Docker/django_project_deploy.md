@@ -129,6 +129,7 @@ $ docker exec -it mysql_server /bin/bash
 ```
 <br/>
 3. mysql_server 컨테이너와 mydjango 컨테이너 연결
+
 - `docker run -d -p 13306:3306 -e MYSQL_ALLOW_EMPTY_PASSWORD=true -v C:\cloud\django_project\db_mount:/var/lib/mysql --network my-network --name mysql_server mysql:5.7`  명령어를 통해 mysql_server 컨테이너를 생성하였기에 호스트에서 13306 포트를 통해 컨테이너에 접속하며, HOST는 mysql_server, PORT는 3306으로 설정
 
 ```python
