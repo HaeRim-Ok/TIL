@@ -30,6 +30,8 @@
 <image src="docker_intro.assets/image-20210207221405058.png" height="300px" width="700px">
 <br/>
 
+### 1. Docker Image
+
 **Docker Image** (= OS + Middleware) : 컨테이너 실행에 필요한 파일과 설정값 등을 포함 
 
 - **상태값 없음** -> 고유한 정보가 없다.
@@ -47,7 +49,10 @@
 
 <br/>
 
-Dockerfile : Docker Image를 생성하기 위한 **스크립트 파일**
+### 2. Dockerfile
+
+**Dockerfile** : Docker Image를 생성하기 위한 **스크립트 파일**
+
 - 자체 DSL (Domain-Specific Language) 언어 사용 -> 이미지 생성과정 기술
 - 소스와 함께 버전관리가 되어 누구나 수정 가능
 - 스크립트 파일을 작성하면 도커엔진에서 이를 도커 이미지로 생성
@@ -70,6 +75,8 @@ CMD ["start.sh"]	#실행
 
 docker 설치 확인 : `docker version`
 <br/>
+
+### 3. Container 실행
 
 **컨테이너 실행** (=pull+create+start): `docker run [OPTIONS] IMAGE[:TAG|@DIGEST][COMMAND][ARG...]`
 
