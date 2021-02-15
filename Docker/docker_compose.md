@@ -25,7 +25,7 @@ Docker Compose는 Docker Command 혹은 복잡한 설정을 쉽게 관리하기 
 - 같은 depth를 가진다면 똑같은 command line으로 인식한다.
 - 아래의 경우 총 2개의 컨테이너 (servicename , servicename2 )를 실행시키고자 한다.
 
-![image-20210215130649294](docker-compose.assets/image-20210215130649294.png)
+![image](https://user-images.githubusercontent.com/77096463/107907330-c1ac3c80-6f96-11eb-99bb-9fe888ce2e57.png)
 
 <br/>
 <br/>
