@@ -9,11 +9,10 @@
 
 ## Docker
 - [docker_intro](Docker/docker_intro.md)
-
 - [docker_command,dockerfile](Docker/docker_command,dockerfile.md)
-
 - [django_project_deploy](Docker/django_project_deploy.md)
-
+- [docker_compose](Docker/docker_compose.md)
+- [django_news_deploy(hw)](Docker/django_news_deploy(hw).md)
   <br/><br/>
 
 ## git
