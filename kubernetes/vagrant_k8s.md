@@ -46,7 +46,7 @@ vagrant status
 
 <br/>
 
-**Vagrant 가상 이미지에 ssh 접근 **
+**Vagrant 가상 이미지에 ssh 접근**
 
 ```
 vagrant ssh node-1
