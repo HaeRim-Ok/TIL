@@ -49,7 +49,7 @@ $ docker run -d -it -p 8000:8000 --network my-network --name mydjango2 mydjango:
 
 명령어 수행 후 http:127.0.0.1/8000 서버 접속하기 
 
-![image-20210214003147644](Docker_Django_homework.assets/image-20210214003147644.png)
+![image-20210214003147644](https://user-images.githubusercontent.com/77096463/108019030-a9065a00-705c-11eb-8c43-8282396cef70.png)
 
 4. database를 환경변수로 설정하여 컨테이너 생성 및 실행
 
@@ -109,7 +109,7 @@ $ docker exec -it mysql_server2 /bin/bash
 
 위 명령어를 통해 기존 장고 프로젝트에서 생성된 테이블을 확인할 수 있다.
 
-![image-20210214004402994](Docker_Django_homework.assets/image-20210214004402994.png)
+![image-20210214004402994](https://user-images.githubusercontent.com/77096463/108019031-aa378700-705c-11eb-9dc6-7fb333dee14b.png)
 
 mymysql 이미지 태그 변경
 
