@@ -348,7 +348,7 @@ If you don't see a command prompt, try pressing enter.
 
 # Troubleshooting
 
-1. 도커 명령어 실행 시 **Got permission denied while tryint to connect to the Docker daemon socket at ~** 에러 발생
+1. 도커 명령어 실행 시 Got permission denied while tryint to connect to the Docker daemon socket at ~ 에러 발생
 
 ```
 # 1번 방법
