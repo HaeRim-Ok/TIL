@@ -12,16 +12,19 @@ Bitvise: xshell과 같이 가상머신에 ssh 접속을 위해 사용한다.
 Authentication의 username을 vagrant로 지정한 뒤, 하단의 client key manager를 클릭하여 부여 받은 키를 등록한다.
 
 ![image-20210223214145150](Bitvise,k8s,pod.assets/image-20210223214145150.png)
+<br>
 
 2. Import -> `vagrant ssh-config master`명령어를 통해 IdentifyFile 경로 알아두기 
 - C:\cloud\vagrant\.vagrant\machines\master\virtualbox\private_key 와 같은 경로라면, private_key 이전까지의 경로로 가서 키 등록하기  
 
 
-  ![image-20210223214349671](Bitvise,k8s,pod.assets/image-20210223214349671.png)
+![image-20210223214349671](Bitvise,k8s,pod.assets/image-20210223214349671.png)
+<br>
 
 3. Master, Node1, Node2 총 3개의 노드에 대해 위의 작업 반복 후 New terminal console을 통해 접속하기
 - Master: 19214 / Node1: 19211 / Node2: 19212
 <br>
+
 4. The connection to the server localhost:8080 was refused - did you specify the right host or port? 에러 → master 노드에서 아래 명령어를 실행
 
 ```
@@ -69,6 +72,7 @@ Authentication의 username을 vagrant로 지정한 뒤, 하단의 client key man
 ```
 
 ![image-20210223220951960](Bitvise,k8s,pod.assets/image-20210223220951960.png)
+<br>
 
 따라서 명령어를 입력할 때 `kubectl get nodes`와 `kubectl get no`는 같은 결과를 출력
 
@@ -90,9 +94,10 @@ Authentication의 username을 vagrant로 지정한 뒤, 하단의 client key man
 
 # Pod
 
-pod: 컨테이너 애플리케이션의 기본 단위
-	: 1개 이상의 컨테이너로 구성된 컨테이너의 집합
-	: 여러 컨테이너를 추상화하여 하나의 애플리케이션으로 동작하도록 만드는 컨테이너 묶음
+pod
+: 컨테이너 애플리케이션의 기본 단위
+: 1개 이상의 컨테이너로 구성된 컨테이너의 집합
+: 여러 컨테이너를 추상화하여 하나의 애플리케이션으로 동작하도록 만드는 컨테이너 묶음
 
 ### nginx 컨테이너로 구성된 pod 생성
 
@@ -117,6 +122,8 @@ spec:             # 리소스 생성을 위한 정보
         protocol: TCP
 ```
 
+<br>
+
 2. 쿠버네티스 클러스터에 새로운 pod를 생성하고 생성된 pod 확인한다.
 
 ```
@@ -126,6 +133,8 @@ spec:             # 리소스 생성을 위한 정보
 
 ![image-20210223222633760](Bitvise,k8s,pod.assets/image-20210223222633760.png)
 
+<br>
+
 3. 생성된 pod의 상세 정보 확인
 
 ```
@@ -133,6 +142,8 @@ spec:             # 리소스 생성을 위한 정보
 ```
 
 ![image-20210223222807358](Bitvise,k8s,pod.assets/image-20210223222807358.png)
+
+<br>
 
 아래의 명령어도 pod가 어느 노드에 생성되었는지와 ip 주소를 함께 확인할 수 있다.
 
@@ -142,6 +153,8 @@ spec:             # 리소스 생성을 위한 정보
 
 ![image-20210223223028222](Bitvise,k8s,pod.assets/image-20210223223028222.png)
 
+<br>
+
 4. 클러스터 내부에 테스트용 pod 임시 생성하여 nginx 동작 확인
 
 ```
@@ -149,10 +162,12 @@ spec:             # 리소스 생성을 위한 정보
 ```
 
 ![image-20210223223246845](Bitvise,k8s,pod.assets/image-20210223223246845.png)
+<br>
 
 이 때 다른 터미널을 열어 debugpod (nginx 동작 확인을 위해 임시로 만든 pod) 가 실행 중임을 알 수 있다.
 
 ![image-20210223223351320](Bitvise,k8s,pod.assets/image-20210223223351320.png)
+<br>
 
 5. 임시 생성한 pod 중지 및 삭제
 
@@ -161,10 +176,13 @@ spec:             # 리소스 생성을 위한 정보
 ```
 [vagrant@master ~]$ kubectl delete pod debug
 ```
+<br>
 
 6. pod 로그 확인
 
 ![image-20210223223742806](Bitvise,k8s,pod.assets/image-20210223223742806.png)
+
+<br>
 
 7. my-nginx-pod 삭제
 
@@ -199,6 +217,8 @@ spec:
       args: ["-f", "/dev/null"] # tail -f /dev/null 실행
 ```
 
+<br>
+
 2. 매니페스트 파일 적용
 
 ```
@@ -207,6 +227,8 @@ spec:
 ```
 
 ![image-20210223224700793](Bitvise,k8s,pod.assets/image-20210223224700793.png)
+
+<br>
 
 3. 명령어를 수행할 컨테이너(ubuntu-sidecar-container)를 지정 -> 우분투 컨테이너의 localhost에서 nginx 접속 확인
 
@@ -337,6 +359,8 @@ Redirecting to /bin/systemctl restart docker.service
 # 2번 방법 (위 방법으로 해결 안될 때)
 [vagrant@master sidecar]$ sudo chmod 666 /var/run/docker.sock
 ```
+
+<br>
 
 2. pod 생성 시 **Pending** 혹은 **CrashLoopBackOff**  에러 발생
 
