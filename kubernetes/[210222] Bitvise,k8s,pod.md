@@ -8,8 +8,7 @@ Bitvise: xshell과 같이 가상머신에 ssh 접속을 위해 사용한다.
 
 0. 가상머신 상태 확인 및 실행 -> `vagrant status` , `vagrant up`
 
-1. Master 노드 접속을 위해 server host 는 127.0.0.1로, port는 19214로 지정한다. 
-Authentication의 username을 vagrant로 지정한 뒤, 하단의 client key manager를 클릭하여 부여 받은 키를 등록한다.
+1. Master 노드 접속을 위해 server host 는 127.0.0.1로, port는 19214로 지정한다. <br> Authentication의 username을 vagrant로 지정한 뒤, 하단의 client key manager를 클릭하여 부여 받은 키를 등록한다.
 
 ![image-20210223214145150](Bitvise,k8s,pod.assets/image-20210223214145150.png)
 <br>
@@ -94,9 +93,8 @@ Authentication의 username을 vagrant로 지정한 뒤, 하단의 client key man
 
 # Pod
 
-pod
-: 컨테이너 애플리케이션의 기본 단위
-: 1개 이상의 컨테이너로 구성된 컨테이너의 집합
+pod : 컨테이너 애플리케이션의 기본 단위<br>
+: 1개 이상의 컨테이너로 구성된 컨테이너의 집합<br>
 : 여러 컨테이너를 추상화하여 하나의 애플리케이션으로 동작하도록 만드는 컨테이너 묶음
 
 ### nginx 컨테이너로 구성된 pod 생성
@@ -162,11 +160,13 @@ spec:             # 리소스 생성을 위한 정보
 ```
 
 ![image-20210223223246845](Bitvise,k8s,pod.assets/image-20210223223246845.png)
+
 <br>
 
 이 때 다른 터미널을 열어 debugpod (nginx 동작 확인을 위해 임시로 만든 pod) 가 실행 중임을 알 수 있다.
 
 ![image-20210223223351320](Bitvise,k8s,pod.assets/image-20210223223351320.png)
+
 <br>
 
 5. 임시 생성한 pod 중지 및 삭제
