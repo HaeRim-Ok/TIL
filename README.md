@@ -17,10 +17,10 @@
 
 ## kubernetes
 - [vagrant_k8s](kubernetes/vagrant_k8s.md)
-- [210222_Bitvise,k8s,pod](kubernetes/210222-Bitvise,k8s,pod.md)
-- [[210223] Pod_healthcheck,Replicaset,Deployment,Service](kubernetes/[210223] Pod_healthcheck,Replicaset,Deployment,Service.md)
-- [[210224] Service,Namespace,Configmap,Secret](kubernetes/[210224] Service,Namespace,Configmap,Secret.md)
-- [[210225] Secret(HTTPbasic),Job,CronJob](kubernetes/[210225] Secret(HTTPbasic),Job,CronJob.md)
+- [210222_Bitvise,k8s,pod](kubernetes/210222_Bitvise,k8s,pod.md)
+- [210223_Pod_healthcheck,Replicaset,Deployment,Service](kubernetes/210223_Pod_healthcheck,Replicaset,Deployment,Service.md)
+- [210224_Service,Namespace,Configmap,Secret](kubernetes/210224_Service,Namespace,Configmap,Secret.md)
+- [210225_Secret(HTTPbasic),Job,CronJob](kubernetes/210225_Secret(HTTPbasic),Job,CronJob.md)
 
 ## git
 - [git-command](git/git-command.md)
