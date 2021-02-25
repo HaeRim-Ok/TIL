@@ -17,6 +17,13 @@
 
 ### HTTP 기본인증
 
+> 1. 웹 애플리케이션이 HTTP 요청을 받는다.
+> 2. 서버는 사용자가 누구인지 식별하기 위해 개인정보를 요구하는 인증 요구로 응답한다.
+> 3. 인증 요구를 받은 클라이언트는 사용자에게 인증 정보를 물어본다. 사용자는 인증 정보를 추가해 다시 요청을 보낸다.
+> 4. 서버는 인증 정보를 확인하여 OK를 하거나, 인증 정보가 맞지 않다면 에러를 반환한다.
+>
+> **BASIC 인증** : 클라이언트에 대한 사용자 이름과 암호를 BASE64로 인코딩된 문자열 보낸다.
+
 ![HTTPAuth](https://user-images.githubusercontent.com/77096463/109166340-f3f04200-77bf-11eb-9164-7160636d9561.png)
 
 1. openssl 모듈을 이용해서 id, pwd를 암호화한 후 BASE64로 인코딩
@@ -260,12 +267,29 @@ spec:
 
 2. 생성 및 확인
 
-에러 수정 중
-
 ```
 [vagrant@master ~]$ kubectl apply -f simple-job.yaml
-The Job "pingpong" is invalid: spec.template: Invalid value: core.PodTemplateSpec{ObjectMeta:v1.ObjectMeta{Name:"", GenerateName:"", Namespace:"", SelfLink:"", UID:"", ResourceVersion:"", Generation:0, CreationTimestamp:v1.Time{Time:time.Time{wall:0x0, ext:0, loc:(*time.Location)(nil)}}, DeletionTimestamp:(*v1.Time)(nil), DeletionGracePeriodSeconds:(*int64)(nil), Labels:map[string]string{"app":"pingpong", "controller-uid":"40df0d22-c143-4e55-80c9-2f4472253bd7", "job-name":"pingpong"}, Annotations:map[string]string(nil), OwnerReferences:[]v1.OwnerReference(nil), Initializers:(*v1.Initializers)(nil), Finalizers:[]string(nil), ClusterName:"", ManagedFields:[]v1.ManagedFieldsEntry(nil)}, Spec:core.PodSpec{Volumes:[]core.Volume(nil), InitContainers:[]core.Container(nil), Containers:[]core.Container{core.Container{Name:"pingpong", Image:"gihyodocker/alpine:bash", Command:[]string{"/bin/bash"}, Args:[]string{"-c", "echo [`date`] ping!\nsleep 10\necho [`date`] pong!\n"}, WorkingDir:"", Ports:[]core.ContainerPort(nil), EnvFrom:[]core.EnvFromSource(nil), Env:[]core.EnvVar(nil), Resources:core.ResourceRequirements{Limits:core.ResourceList(nil), Requests:core.ResourceList(nil)}, VolumeMounts:[]core.VolumeMount(nil), VolumeDevices:[]core.VolumeDevice(nil), LivenessProbe:(*core.Probe)(nil), ReadinessProbe:(*core.Probe)(nil), Lifecycle:(*core.Lifecycle)(nil), TerminationMessagePath:"/dev/termination-log", TerminationMessagePolicy:"File", ImagePullPolicy:"IfNotPresent", SecurityContext:(*core.SecurityContext)(nil), Stdin:false, StdinOnce:false, TTY:false}}, RestartPolicy:"Never", TerminationGracePeriodSeconds:(*int64)(0xc0090c6380), ActiveDeadlineSeconds:(*int64)(nil), DNSPolicy:"ClusterFirst", NodeSelector:map[string]string(nil), ServiceAccountName:"", AutomountServiceAccountToken:(*bool)(nil), NodeName:"", SecurityContext:(*core.PodSecurityContext)(0xc00412bab0), ImagePullSecrets:[]core.LocalObjectReference(nil), Hostname:"", Subdomain:"", Affinity:(*core.Affinity)(nil), SchedulerName:"default-scheduler", Tolerations:[]core.Toleration(nil), HostAliases:[]core.HostAlias(nil), PriorityClassName:"", Priority:(*int32)(nil), PreemptionPolicy:(*core.PreemptionPolicy)(nil), DNSConfig:(*core.PodDNSConfig)(nil), ReadinessGates:[]core.PodReadinessGate(nil), RuntimeClassName:(*string)(nil), EnableServiceLinks:(*bool)(nil)}}: field is immutable
+job.batch/pingpong created
+
+[vagrant@master ~]$ kubectl logs -l app=pingpong
+[Thu Feb 25 14:46:38 UTC 2021] ping!	# 38초
+[Thu Feb 25 14:46:48 UTC 2021] pong!
+[Thu Feb 25 14:46:37 UTC 2021] ping!	# 37초
+[Thu Feb 25 14:46:48 UTC 2021] pong!
+[Thu Feb 25 14:46:27 UTC 2021] ping!	# 27초
+[Thu Feb 25 14:46:37 UTC 2021] pong!
 ```
+
+STATUS가 completed라는 것은 작업이 모두 종료된 상태
+```
+[vagrant@master ~]$ kubectl get pods -l app=pingpong -o wide
+NAME                        READY   STATUS      RESTARTS   AGE     IP                NODE    NOMINATED NODE   READINESS GATES
+pingpong-5v8mh              0/1     Completed   0          3m23s   192.168.166.180   node1   <none>           <none>
+pingpong-kl954              0/1     Completed   0          3m23s   192.168.166.181   node1   <none>           <none>
+pingpong-pcfvx              0/1     Completed   0          3m23s   192.168.104.41    node2   <none>           <none>
+```
+
+
 
 <br>
 
@@ -281,9 +305,7 @@ cron 등을 사용해 정기적으로 실행하는 작업에 적합
 
 
 
-​	*					*					*					*						*
-
-분(0-59)　　시간(0-23)　　일(1-31)　　월(1-12)　　　요일(0-7)
+![image](https://user-images.githubusercontent.com/77096463/109166868-81339680-77c0-11eb-9633-3daca0893bda.png)
 
 <br>
 
