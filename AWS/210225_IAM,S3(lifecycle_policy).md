@@ -84,11 +84,12 @@ AWS 클라우드 서비스 범위
 }
 ```
 
-- 관리형 정책 : 일괄적으로 정책을 적용하고 관리한다.![image-20210225161647148]([210225] Learn_AWS_by_doing.assets/image-20210225161647148.png)
+- 관리형 정책 : 일괄적으로 정책을 적용하고 관리한다.
+![image-20210225161647148](https://user-images.githubusercontent.com/77096463/109319372-22d6e880-7892-11eb-82ca-2ba853ae90c4.png)
 
 - 인라인 정책 : 개별적으로 정책을 적용하고 개별적으로 관리한다. -> 단일 사용자, 그룹, 역할에 직접 추가하는 방식
 
-![image-20210225161732891]([210225] Learn_AWS_by_doing.assets/image-20210225161732891.png)
+![image-20210225161732891](https://user-images.githubusercontent.com/77096463/109319428-34b88b80-7892-11eb-821f-7f3791acbe93.png)
 
 ### 추가 Lab
 
@@ -133,7 +134,7 @@ AWS 클라우드 서비스 범위
 }
 ```
 
-![image-20210225153523746]([210225] Learn_AWS_by_doing.assets/image-20210225153523746.png)
+![image-20210225153523746](https://user-images.githubusercontent.com/77096463/109319481-40a44d80-7892-11eb-8039-ad853e127907.png)
 
 <br>
 
@@ -142,7 +143,7 @@ AWS 클라우드 서비스 범위
 - IAM > 사용자 > user-1 > 권한 추가 이동
 - 권한 추가하는 3가지 방법이 있지만 '기존 정책 직접 연결' -> AmazonEC2ReadOnlyAccess 정책 선택
 
-![image-20210225153750877]([210225] Learn_AWS_by_doing.assets/image-20210225153750877.png)
+![image-20210225153750877](https://user-images.githubusercontent.com/77096463/109319513-4b5ee280-7892-11eb-8c11-0ea5fe7a0103.png)
 
 <br>
 
@@ -188,12 +189,12 @@ AWS 클라우드 서비스 범위
 
 생성된 ec2-manager 확인하기
 
-![image-20210225154607967]([210225] Learn_AWS_by_doing.assets/image-20210225154607967.png)
+![image-20210225154607967](https://user-images.githubusercontent.com/77096463/109319566-57e33b00-7892-11eb-95f2-9681cfd11c23.png)
 
 - IAM > 그룹 >  EC2-Admin > 권한 탭 > 관리형 정책 탭 > ec2-manager 정책 연결
 - user-1 으로 로그인하여 실행 중인 인스턴스를 중지할 수 있는지 확인 
 
-![image-20210225154904434]([210225] Learn_AWS_by_doing.assets/image-20210225154904434.png)
+![image-20210225154904434](https://user-images.githubusercontent.com/77096463/109319608-60d40c80-7892-11eb-9d90-9970c4ea2b44.png)
 
 <br>
 
@@ -202,7 +203,7 @@ AWS 클라우드 서비스 범위
 - IAM > 정책 > ec2-manager 정책 편집 > JSON 탭에서 'ec2:StopInstances' 항목 삭제
 - user-1 으로 로그인하여 ec2 인스턴스 중지 불가 확인
 
-![image-20210225155231924]([210225] Learn_AWS_by_doing.assets/image-20210225155231924.png)
+![image-20210225155231924](https://user-images.githubusercontent.com/77096463/109319635-6af60b00-7892-11eb-8141-cad98b1a2de4.png)
 
 <br>
 
@@ -227,7 +228,7 @@ AWS 클라우드 서비스 범위
 - 이름 : myawsbucket130 
 - 모든 퍼블릭 액세스 차단 클릭 해제하기 -> 외부에서 객체 주소를 이용한 접근을 모두 차단
 
-![image-20210225164657295]([210225] Learn_AWS_by_doing.assets/image-20210225164657295.png)
+![image-20210225164657295](https://user-images.githubusercontent.com/77096463/109319678-76493680-7892-11eb-8251-3c71c391645c.png)
 
 <br>
 
@@ -235,7 +236,7 @@ AWS 클라우드 서비스 범위
 
 - https://github.com/tia-la/ccp 에서 jpg 파일 다운받아 업로드하기
 
-![image-20210225164955307]([210225] Learn_AWS_by_doing.assets/image-20210225164955307.png)
+![image-20210225164955307](https://user-images.githubusercontent.com/77096463/109319701-7f3a0800-7892-11eb-8c1e-545dcdf1243c.png)
 
 <br>
 
@@ -245,7 +246,7 @@ AWS 클라우드 서비스 범위
 - 필터 유형 : 접두사 - pinehead 로 지정
 - 수명 주기 규칙 작업 : 스토리지 클래스 간에 객체의 *현재* 버전 전환, 스토리지 클래스 간에 객체의 *이전* 버전 전환 클릭
 
-![image-20210225165548517]([210225] Learn_AWS_by_doing.assets/image-20210225165548517.png)
+![image-20210225165548517](https://user-images.githubusercontent.com/77096463/109319720-86611600-7892-11eb-82c4-59d530180a44.png)
 
 <br>
 
@@ -253,7 +254,7 @@ AWS 클라우드 서비스 범위
 - 스토리지 클래스 전환 : Glacier 
 - 객체 생성 후 경과 기간(일) : 30
 
-![image-20210225165732011]([210225] Learn_AWS_by_doing.assets/image-20210225165732011.png)
+![image-20210225165732011](https://user-images.githubusercontent.com/77096463/109319749-8fea7e00-7892-11eb-8411-1fea3e103b93.png)
 
 <br>
 
@@ -261,7 +262,7 @@ AWS 클라우드 서비스 범위
 - 스토리지 클래스 전환 : Glacier Deep Archive (더욱 더 많이 안쓰는 데이터 저장 - 비용 저렴, 빠른 액세스 보장 안됨)
 - 객체가 최신이 아닌 상태로 전환된 후 경과 기간(일) : 15
 
-![image-20210225165742030]([210225] Learn_AWS_by_doing.assets/image-20210225165742030.png)
+![image-20210225165742030](https://user-images.githubusercontent.com/77096463/109319770-9842b900-7892-11eb-9694-501a4f79b478.png)
 
 모든 과정이 완료되면 규칙 생성 버튼 클릭하기
 
@@ -269,4 +270,4 @@ AWS 클라우드 서비스 범위
 
 6. 수명 주기 규칙이 적용된 S3
 
-![image-20210225165827764]([210225] Learn_AWS_by_doing.assets/image-20210225165827764.png)
+![image-20210225165827764](https://user-images.githubusercontent.com/77096463/109319800-9f69c700-7892-11eb-824d-7fc9fc238baf.png)
