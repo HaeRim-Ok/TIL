@@ -1,6 +1,6 @@
 # Configuring Amazon S3 Buckets to Host a Static Website with a Custom Domain
 
-![image-20210226091453817](210226_.assets/image-20210226091453817.png)
+![image-20210226091453817](https://user-images.githubusercontent.com/77096463/109320381-4babad80-7893-11eb-932a-0e392ebd0cbc.png)
 
 **Amazon S3**
 
@@ -23,7 +23,7 @@
 
 ### Lab 구성도
 
-![image](https://user-images.githubusercontent.com/77096463/109244019-4ca3f700-7821-11eb-875a-83e08e8095e8.png)
+![image](https://user-images.githubusercontent.com/77096463/109244019-4ca3f700-7821-11eb-875a-83e08e8095e8.png){: width="200" height="400"}
 
 <br>
 
@@ -43,14 +43,14 @@
 - 리전 : us-east-1 (버지니아 북부)
 - 모든 퍼블릭 액세스 차단 체크 해제하기
 
-![image-20210226093352896](210226_.assets/image-20210226093352896.png)
+![image-20210226093352896](https://user-images.githubusercontent.com/77096463/109320454-5fefaa80-7893-11eb-9ba2-a127dc0e62d5.png)
 <br>
 
 4. 생성한 버킷 클릭 > 객체 탭 > 업로드 클릭
 
 - 깃허브에서 다운받은 penguinsite 폴더를 업로드한다.
 
-![image-20210226093626248](210226_.assets/image-20210226093626248.png)
+![image-20210226093626248](https://user-images.githubusercontent.com/77096463/109320456-60884100-7893-11eb-87a4-e22440588f5c.png)
 <br><br>
 
 ### 정적 웹사이트 생성
@@ -61,24 +61,27 @@
 - 인덱스 문서 (기본 문서) : index.html
 - 오류 문서 : error.html
 
-![image-20210226094006493](210226_.assets/image-20210226094006493.png)
+![image-20210226094006493](https://user-images.githubusercontent.com/77096463/109320459-60884100-7893-11eb-8194-4646c1e71786.png)
 <br>
+
 2. 버킷 웹 사이트 엔드포인트 링크 (웹서버 역할) 클릭 > 403 Forbidden 에러가 나야 한다.
 
 - 해당 페이지가 외부로 노출되어 있지 않기 때문 -> 따라서 웹서버에 접속하기 위해 public으로 접근을 허용해야 한다.
 
-![image-20210226094127834](210226_.assets/image-20210226094127834.png)
+![image-20210226094127834](https://user-images.githubusercontent.com/77096463/109320462-6120d780-7893-11eb-8021-6f12025cbf06.png)
 
-![image-20210226094149768](210226_.assets/image-20210226094149768.png)
+![image-20210226094149768](https://user-images.githubusercontent.com/77096463/109320464-61b96e00-7893-11eb-8826-3c9820ed6b6d.png)
 <br>
+
 3. 객체 탭 > 모든 html 파일을 퍼블릭으로 설정 (버킷에 등록된 객체에 퍼블릭 접근이 가능하도록)
 
-![image-20210226094306818](210226_.assets/image-20210226094306818.png)
+![image-20210226094306818](https://user-images.githubusercontent.com/77096463/109320468-61b96e00-7893-11eb-9226-8921b68c6f33.png)
 <br>
 다시 버킷 웹 사이트 엔드포인트 링크 클릭 > 엔드포인트 링크 접속 가능 확인
 
-![image-20210226102406564](210226_.assets/image-20210226102406564.png)
+![image-20210226102406564](https://user-images.githubusercontent.com/77096463/109320473-62ea9b00-7893-11eb-9d56-cee6ba506ab8.png)
 <br><br>
+
 ### S3 Bucket을 위한 DNS 레코드 구성
 
 > **DNS 레코드**
@@ -98,16 +101,18 @@
 - 리전 : 미국 동부 (버지니아 북부) us-east-1
 - 버킷 : 생성한 버킷 자동 선택 
 
-![image-20210226100006066](210226_.assets/image-20210226100006066.png)
+![image-20210226100006066](https://user-images.githubusercontent.com/77096463/109320470-62520480-7893-11eb-8e89-fa0aa3263c04.png)
 <br>
 모든 과정이 끝나면 레코드 생성 버튼 눌러 최종적으로 레코드가 생성되었는지 확인한다.
 
-![image-20210226100138511](210226_.assets/image-20210226100138511.png)
+![image-20210226100138511](https://user-images.githubusercontent.com/77096463/109320472-62520480-7893-11eb-8712-2f5dbe9d01cd.png)
 <br>
+
 2. 버킷 이름으로도 웹서버 접속이 가능한지 확인
 
-![image-20210226102701853](210226_.assets/image-20210226102701853.png)
+![image-20210226102701853](https://user-images.githubusercontent.com/77096463/109320474-62ea9b00-7893-11eb-8d2d-9f4d34fd252d.png)
 <br><br>
+
 ### Redirect S3 Bucket (www) 생성
 1. S3 > 버킷 > 버킷 만들기 클릭 
 
@@ -115,56 +120,34 @@
 - 리전 : 미국 동부 (버지니아 북부) us-east-1
 - 모든 퍼브릭 액세스 차단 체크 해제
 
-![image-20210226102832390](210226_.assets/image-20210226102832390.png)
+![image-20210226102832390](https://user-images.githubusercontent.com/77096463/109320476-63833180-7893-11eb-8860-2a593f22b4f1.png)
 <br>
+
 2. S3 > 버킷 > 방금 생성한 버킷 클릭 > 속성 탭 > 정적 웹 사이트 호스팅 편집 
 
 - 정적 웹 사이트 호스팅 : 활성화
 - 호스팅 유형 : **객체에 대한 리디렉션**
 - 호스트 이름 : 버킷 이름
 
-![image-20210226103033474](210226_.assets/image-20210226103033474.png)
+![image-20210226103033474](https://user-images.githubusercontent.com/77096463/109320481-641bc800-7893-11eb-90d4-c72984e55c0c.png)
 <br><br>
+
 ### Redirect S3 Bucket을 위한 DNS 레코드 구성
 1. Route 53 > 호스팅 영역 > 레코드 생성 > 단순 라우팅 > 단순 레코드 정의 클릭
 
 - 레코드 이름 : www 추가
 - 값/트래픽 라우팅 대상은 기존과 동일하게 적용
 
-![image-20210226103409104](210226_.assets/image-20210226103409104.png)
+![image-20210226103409104](https://user-images.githubusercontent.com/77096463/109320485-641bc800-7893-11eb-85f7-a8eabad7164c.png)
 <br>
 
 2. www.cmcloudlab912.info 주소로도 접속 가능 확인 (**cmcloudlab912.info 로 리다이렉트** 된다)
 
-![image-20210226103716116](210226_.assets/image-20210226103716116.png)
+![image-20210226103716116](https://user-images.githubusercontent.com/77096463/109320487-64b45e80-7893-11eb-8dfd-2c5665b715cf.png)
 
 <br>
 
 <br>
-
-# Creating Amazon S3 Buckets, Managing Objects, and Enabling Versioning
-
-### Create Public Bucket
-
-1. S3 > 버킷 만들기
-
-- 버킷 이름 : lapublic13
-- 모든 퍼블릭 액세스 차단 체크 해제
-
-![image-20210226131855879](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226131855879.png)
-
-### Create Private Bucket
-
-1. S3 > 버킷 만들기
-
-- 버킷 이름 : laprivate13
-- 모든 퍼블랙 액세스 차단 체크
-
-![image-20210226132049416](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226132049416.png)
-
-### Create a Folder and Upload File in Public Bucket
-
-### Upload File to Private Bucket
 
 
 
@@ -272,7 +255,7 @@
 
 ### Lab 구성도
 
-![image-20210226154153747](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226154153747.png){:width="200" height="400"}
+![image](https://user-images.githubusercontent.com/77096463/109321582-a98cc500-7894-11eb-889a-be10a0c3ddfc.png){:width="200" height="400"}
 
 <br>
 
@@ -283,7 +266,7 @@
 - 이름 : VPC1
 - IPv4 CIDR : 172.16.0.0/16
 
-![image-20210226142944039](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226142944039.png)
+![image](https://user-images.githubusercontent.com/77096463/109321771-e35dcb80-7894-11eb-8cdb-8284781c9ead.png)
 
 <br>
 
@@ -296,7 +279,7 @@
 -  가용 영역 : us-east-1a
 - IPv4 CIDR : 172.16.1.0/24
 
-![image-20210226143120014](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226143120014.png)
+![image](https://user-images.githubusercontent.com/77096463/109321823-f2447e00-7894-11eb-848e-e9c3e73bbdc3.png)
 
 <br>
 
@@ -309,7 +292,7 @@
 -  가용 영역 : us-east-1b
 - IPv4 CIDR : 172.16.2.0/24
 
-![image-20210226150525614](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226150525614.png)
+![image](https://user-images.githubusercontent.com/77096463/109321870-fe304000-7894-11eb-85e9-42994f16fc89.png)
 
 <br>
 
@@ -320,20 +303,23 @@
 - 이름 : Public_NACL
 - VPC : VPC1
 
-![image-20210226143420213](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226143420213.png)
+![image-20210226143420213.png](https://github.com/mementohaeri/TIL/blob/a45e813ce630ac72ea512815188b1b1f85d463b9/AWS/210226_S3_Static_Web_Hosting,%20Create_VPC.assets/image-20210226143420213.png?raw=true)
 <br>
+
 2. 생성한 NACL 선택 > 인바운드 규칙 편집 
 
-![image-20210226143548406](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226143548406.png)
+![image-20210226143548406.png](https://github.com/mementohaeri/TIL/blob/a45e813ce630ac72ea512815188b1b1f85d463b9/AWS/210226_S3_Static_Web_Hosting,%20Create_VPC.assets/image-20210226143548406.png?raw=true)
 <br>
 생성한 NACL 선택 > 아웃바운드 규칙 편집
 
-![image-20210226143627628](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226143627628.png)
+![image-20210226143627628.png](https://github.com/mementohaeri/TIL/blob/a45e813ce630ac72ea512815188b1b1f85d463b9/AWS/210226_S3_Static_Web_Hosting,%20Create_VPC.assets/image-20210226143627628.png?raw=true)
 <br>
+
 3. 서브넷 연결 편집 > Public1 서브넷을 선택하여 변경 사항 저장 클릭
 
-![image-20210226143716700](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226143716700.png)
+![image-20210226143716700.png](https://github.com/mementohaeri/TIL/blob/a45e813ce630ac72ea512815188b1b1f85d463b9/AWS/210226_S3_Static_Web_Hosting,%20Create_VPC.assets/image-20210226143716700.png?raw=true)
 <br>
+
 ### Create and Configure Private NACL
 
 1. VPC > 네트워크 ACL > 네트워크 ACL 생성
@@ -341,19 +327,21 @@
 - 이름 : Private_NACL
 - VPC : VPC1
 
-![image-20210226143828750](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226143828750.png)
+![image](https://user-images.githubusercontent.com/77096463/109322024-2881fd80-7895-11eb-8d87-0d5dbb854b9b.png)
 <br>
+
 2. 생성한 NACL 선택 > 인바운드 규칙 편집 
 
-![image-20210226143932472](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226143932472.png)
+![image](https://user-images.githubusercontent.com/77096463/109322080-33d52900-7895-11eb-8af2-d289d5ecf3d8.png)
 <br>
 생성한 NACL 선택 > 아웃바운드 규칙 편집
 
-![image-20210226144010128](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226144010128.png) 
+![image](https://user-images.githubusercontent.com/77096463/109322124-3fc0eb00-7895-11eb-887a-b9f50b03e3c6.png)
 <br>
+
 3. 서브넷 연결 편집 > Private1 서브넷을 선택하여 변경 사항 저장 클릭
 
-![image-20210226144107650](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226144107650.png)
+![image](https://user-images.githubusercontent.com/77096463/109322164-4c454380-7895-11eb-8ace-c2a62294c948.png)
 <br>
 
 ### Create an Internet Gateway, and Connect It to the VPC
@@ -362,13 +350,14 @@
 
 - 이름 : IGW
 
-![image-20210226144232500](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226144232500.png)
+![image](https://user-images.githubusercontent.com/77096463/109322193-58c99c00-7895-11eb-9d0f-680698e8a05f.png)
 <br>
 
 2. 작업 > VPC에 연결 > VPC1 선택
 
-![image-20210226144332045](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226144332045.png)
+![image](https://user-images.githubusercontent.com/77096463/109322237-641cc780-7895-11eb-864f-7cbce95a059d.png)
 <br>
+
 ### Create and Configure Public Route Table
 
 1. 라우팅 테이블 > 라우팅 테이블 생성
@@ -376,7 +365,7 @@
 - 이름 : PublicRT
 - VPC : VPC1
 
-![image-20210226144441732](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226144441732.png)
+![image](https://user-images.githubusercontent.com/77096463/109322267-6f6ff300-7895-11eb-9e17-7c85c57a47af.png)
 <br>
 
 2. 라우팅 탭 > 라우팅 편집 > 라우팅 저장
@@ -384,8 +373,9 @@
 - Destination : 0.0.0.0/0 (불특정 호스트로 )
 - Target : IGW
 
-![image-20210226144613500](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226144613500.png)
+![image](https://user-images.githubusercontent.com/77096463/109322299-7bf44b80-7895-11eb-81fe-f5ecc23d2a51.png)
 <br>
+
 3. 서브넷 연결 탭 > 서브넷 연결 편집 > Public1 서브넷 선택
 <br>
 ### Create and Configure Private Route Table
@@ -395,12 +385,12 @@
 - 이름 : PrivateRT
 - VPC : VPC1
 
-![image-20210226144816796](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226144816796.png)
+![image](https://user-images.githubusercontent.com/77096463/109322346-89a9d100-7895-11eb-9ba3-a767163fb158.png)
 <br>
 
 2. 서브넷 연결 탭 > 서브넷 연결 편집 > Private1 서브넷 선택
 
-![image-20210226144921562](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226144921562.png)
+![image](https://user-images.githubusercontent.com/77096463/109322375-93cbcf80-7895-11eb-92bc-9619588417a5.png)
 
 
 
@@ -412,7 +402,7 @@
 
 ### Lab 구성도
 
-![image-20210226163904221](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226163904221.png){: width="200" height="400"}
+![image](https://user-images.githubusercontent.com/77096463/109322406-9f1efb00-7895-11eb-8010-8db199202bc0.png){: width="200" height="400"}
 
 <br>
 
@@ -420,37 +410,41 @@
 
 1. VPC 생성
 
-![image-20210226161842519](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226161842519.png)
+![image](https://user-images.githubusercontent.com/77096463/109322438-aba35380-7895-11eb-88e4-44f6a21788e1.png)
 <br>
+
 2. Subnet (DMZ layer) 생성 -> **가용성 보장을 위해 레이어 별로 서브넷 생성**
 
 - x.x.**1/2**.x : DMZ layer
 - x.x.**10~19**.x : App layer
 - x.x.**20~29**.x : DB layer
 
-![image-20210226161943281](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226161943281.png)
+![image](https://user-images.githubusercontent.com/77096463/109322464-b5c55200-7895-11eb-8466-7e18a1c60b18.png)
 
-![image-20210226162017064](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226162017064.png)
+![image](https://user-images.githubusercontent.com/77096463/109322530-c1b11400-7895-11eb-9bb8-1b48de4175d3.png)
 <br>
+
 3. Subnet (app layer) 생성
 
-![image-20210226162126855](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226162126855.png)
+![image](https://user-images.githubusercontent.com/77096463/109322571-cd9cd600-7895-11eb-92b5-a62fd1db1263.png)
 
-![image-20210226162213298](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226162213298.png)
+![image](https://user-images.githubusercontent.com/77096463/109322612-d7263e00-7895-11eb-92d2-9bc8496d08bc.png)
 <br>
+
 4. Subnet (database layer) 생성
 
-![image-20210226162258575](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226162258575.png)
+![image](https://user-images.githubusercontent.com/77096463/109322642-e1483c80-7895-11eb-9da2-8369e8364457.png)
 
-![image-20210226162327059](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226162327059.png)
+![image-20210226162327059.png](https://github.com/mementohaeri/TIL/blob/a45e813ce630ac72ea512815188b1b1f85d463b9/AWS/210226_S3_Static_Web_Hosting,%20Create_VPC.assets/image-20210226162327059.png?raw=true)
 <br>
+
 5. 인터넷 게이트웨이 생성
 
-![image-20210226162456820](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226162456820.png)
+![image](https://user-images.githubusercontent.com/77096463/109322711-f329df80-7895-11eb-952c-86684c8d98d6.png)
 <br>
 IGW 인터넷 게이트웨이를 앞서 생성한 SysOps VPC에 연결한다.
 
-![image-20210226162528821](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226162528821.png)
+![image](https://user-images.githubusercontent.com/77096463/109322745-fde47480-7895-11eb-8685-aac6d64cc148.png)
 
 <br>
 
@@ -461,54 +455,61 @@ IGW 인터넷 게이트웨이를 앞서 생성한 SysOps VPC에 연결한다.
 - 서브넷 : DMZ2public (**아직 라우팅 테이블에 연결하지 않아 퍼블릿 서브넷이 아니지만, 곧 연결할 예정이므로 일단 연결해준다**)
 - 탄력적 IP 할당 버튼 클릭하여 **새로운 EIP 할당 받기** (NAT Gateway는 EIP를 필요로 함)
 
-![image-20210226162739129](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226162739129.png)
+![image](https://user-images.githubusercontent.com/77096463/109373654-87765f80-78f3-11eb-96c5-fba4e5f3f1d1.png)
 <br>
+
 2. 라우팅 테이블 생성 (퍼블릭, 프라이빗)
 
-![image-20210226162854864](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226162854864.png)
+![image](https://user-images.githubusercontent.com/77096463/109373699-d45a3600-78f3-11eb-9492-f0ba56981508.png)
 
-![image-20210226162912358](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226162912358.png)
+![image](https://user-images.githubusercontent.com/77096463/109373688-c7d5dd80-78f3-11eb-939c-aa93bfe99d2d.png)
 <br>
+
 3. PublicRT 선택 > 라우팅 편집 (아래처럼)
 
 - target : local -> VPC 내의 모든 서브넷과 통신 가능
 - 모든 요청에 대해 IGW로 갈 수 있도록 라우팅 추가해주기
 
-![image-20210226163042053](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226163042053.png)
+![image](https://user-images.githubusercontent.com/77096463/109373681-b5f43a80-78f3-11eb-851c-4acee42f96fe.png)
 <br>
+
 4. PrivateRT 선택 > 라우팅 편집
 
 - 외부로 나가도 되지 않기 때문에 IGW 라우팅 추가 안함
 
-![image-20210226163141197](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226163141197.png)
+![image](https://user-images.githubusercontent.com/77096463/109373708-e3d97f00-78f3-11eb-897d-607947c45d3b.png)
 <br>
+
 5. PublicRT 선택 > 서브넷 연결 편집 (DMZ1, DMZ2 선택)
 
-![image-20210226163234319](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226163234319.png)
+![image](https://user-images.githubusercontent.com/77096463/109373719-f18f0480-78f3-11eb-870e-0cfdc1317abb.png)
 <br>
+
 6. PrivateRT 선택 > 서브넷 연결 편집 (4개의 private 서브넷 선택)
 
-![image-20210226163343017](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226163343017.png)
+![image](https://user-images.githubusercontent.com/77096463/109373735-053a6b00-78f4-11eb-99fd-19490e9e77a1.png)
 <br>
+
 7. NACL 생성
 
-![image-20210226163447613](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226163447613.png)
+![image](https://user-images.githubusercontent.com/77096463/109373742-12575a00-78f4-11eb-91ea-72595731fd8c.png)
 
-![image-20210226163510306](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226163510306.png)
+![image](https://user-images.githubusercontent.com/77096463/109373748-23a06680-78f4-11eb-9d29-9606ed90aad0.png)
 
-![image-20210226163525891](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226163525891.png)
+![image](https://user-images.githubusercontent.com/77096463/109373756-331faf80-78f4-11eb-99a7-c869594c8f90.png)
 <br>
+
 8. DMZNACL 선택 > 서브넷 연결 편집 (DMZ layer 서브넷 연결)
 
-![image-20210226163620943](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226163620943.png)
+![image](https://user-images.githubusercontent.com/77096463/109373773-46327f80-78f4-11eb-9898-3b4a66a828e1.png)
 <br>
 AppZNACL 선택 > 서브넷 연결 편집 (App layer 서브넷 연결)
 
-![image-20210226163711647](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226163711647.png)
+![image](https://user-images.githubusercontent.com/77096463/109373785-58acb900-78f4-11eb-8159-aa9c02b11ab5.png)
 <br>
 DBNACL 선택 > 서브넷 연결 편집 (DBlayer 서브넷 연결)
 
-![image-20210226163747062](210226_S3_Static_Web_Hosting, Create_VPC.assets/image-20210226163747062.png)
+![image](https://user-images.githubusercontent.com/77096463/109373798-682c0200-78f4-11eb-9e4d-5acd07aad4c3.png)
 
 <br>
 
