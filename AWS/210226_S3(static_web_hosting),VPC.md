@@ -23,7 +23,7 @@
 
 ### Lab 구성도
 
-![image](https://user-images.githubusercontent.com/77096463/109244019-4ca3f700-7821-11eb-875a-83e08e8095e8.png){: width="200" height="400"}
+![image](https://user-images.githubusercontent.com/77096463/109244019-4ca3f700-7821-11eb-875a-83e08e8095e8.png){:width="200" height="400"}
 
 <br>
 
@@ -247,7 +247,7 @@
 
 ### Lab 구성도
 
-![image](https://user-images.githubusercontent.com/77096463/109321582-a98cc500-7894-11eb-889a-be10a0c3ddfc.png){: width="200" height="400"}
+![image](https://user-images.githubusercontent.com/77096463/109321582-a98cc500-7894-11eb-889a-be10a0c3ddfc.png){:width="200" height="400"}
 
 <br>
 
@@ -395,7 +395,7 @@
 
 ### Lab 구성도
 
-![image](https://user-images.githubusercontent.com/77096463/109322406-9f1efb00-7895-11eb-8010-8db199202bc0.png){: width="200" height="400"}
+![image](https://user-images.githubusercontent.com/77096463/109322406-9f1efb00-7895-11eb-8010-8db199202bc0.png){:width="200" height="400"}
 
 <br>
 
