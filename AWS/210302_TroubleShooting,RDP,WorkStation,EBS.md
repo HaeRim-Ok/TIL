@@ -393,12 +393,20 @@ AMI가 생성되었다면 새로이 인스턴스를 생성 > 이 때 나의 AMI 
 
 <br>
 
-### Create an EBS Snapshot
+### Create an EBS Snapshot - Bastion host
 
 EC2에서 실행 중인 3개의 인스턴스를 확인 후, bastion-host 선택<br>
 - 스토리지 > 볼륨 ID 선택
 
 ![image-20210302171649686](210302.assets/image-20210302171649686.png)
+
+<br>
+
+Auto Scaling 그룹 확인
+- 최소 용량, 최대 용량 : 2 -> 인스턴스 2개 지정 조건
+- 시작 구성 : 최소용량, 최대용량과 같은 조건을 만족시키지 못하는 경우 새로운 인스턴스를 생성할 때의 설정
+
+![image-20210303092507783](210302_TroubleShooting,RDP,WorkStation,EBS.assets/image-20210303092507783.png)
 
 <br>
 
@@ -414,7 +422,7 @@ EC2에서 실행 중인 3개의 인스턴스를 확인 후, bastion-host 선택<
 
 <br>
 
-### Create a new (larger) EBS Volume
+### Create a new (larger) EBS Volume - Bastion host
 
 생성한 스냅샷 선택 > 작업 > 볼륨 생성
 - 크기 : 40 Gib -> IOPS : 120/3000 자동으로 변경됨
@@ -430,7 +438,7 @@ EC2에서 실행 중인 3개의 인스턴스를 확인 후, bastion-host 선택<
 
 <br>
 
-### Attach the (larger) EBS volume to an EC2 instance
+### Attach the (larger) EBS volume to an EC2 instance - Bastion host
 
 인스턴스에 부여 되었던 기존의 볼륨을 방금 생성한 볼륨으로 변경할 예정<br>
 우선 bastion-host 인스턴스의 상태를 '**중지**' 로 변경
@@ -472,6 +480,8 @@ SSH 접속 및 블록 디바이스 목록 확인
 
 ### Create a new Auto-scaling Launch Configuration and Update the existing Auto-scaling Group
 
+**처음 auto scaling 그룹 시작 구성과 동일한 조건으로 시작 구성을 생성하되 스토리지 볼륨만 변경할 것**
+
 시작 구성 > 사용자 데이터 내용 복사해두기
 
 ```
@@ -494,17 +504,40 @@ chkconfig mysqld on
 ```
 
 시작 구성 생성 선택
+- 이름 : newLC
+- AMI : ami-07e677d445d41baeb
+- 인스턴스 유형 : t2.micro
 
-![image-20210302174317638](210302.assets/image-20210302174317638.png)
+
+![image-20210303093158113](210302_TroubleShooting,RDP,WorkStation,EBS.assets/image-20210303093158113.png)
+
+고급 세부 정보 > 사용자 데이터 > 복사해둔 사용자 데이터 내용 붙여넣기 (**기존과 동일한 인스턴스를 생성할 수 있도록 설정**)
+- IP 주소 유형 : '어느 인스턴스에도 퍼블릭 ip 주소를 할당하지 않습니다' 선택
 
 ![image-20210302174338504](210302.assets/image-20210302174338504.png)
 
+스토리지 볼륨 > 새 볼륨 추가 
+- 사이즈 : 40 Gib
+
+
 ![image-20210302174354400](210302.assets/image-20210302174354400.png)
+
+보안 그룹 : 기존 보안 그룹 선택 -> WebServerSecurityGroup
 
 ![image-20210302174405482](210302.assets/image-20210302174405482.png)
 
+키 페어 옵션 : 키 페어 없이 계속
+
 ![image-20210302174433983](210302.assets/image-20210302174433983.png)
 
-Auto Scaling Group 그룹 > 우측 편집 버튼 선택 > 시작 구성 변경 (newLC로)
+Auto Scaling Group에 새롭게 생성한 시작 구성으로 변경
 
-![image-20210302174612650](210302.assets/image-20210302174612650.png)
+- Auto Scaling Group 그룹 > 우측 편집 버튼 선택 > 시작 구성 변경 (newLC로)
+
+![image-20210303093337899](210302_TroubleShooting,RDP,WorkStation,EBS.assets/image-20210303093337899.png)
+
+기존에 동작하고 있던 인스턴스를 종료 → Auto Scaling 설정에 따라 (시작 구성에 설정된) 새로운 인스턴스가 생성 
+
+![image-20210303093603371](210302_TroubleShooting,RDP,WorkStation,EBS.assets/image-20210303093603371.png)
+
+<u>새로운 인스턴스 생성 확인</u>
