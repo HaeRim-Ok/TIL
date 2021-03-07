@@ -399,7 +399,7 @@ Local Secondary Index
 
 ### Lab 구성도
 
-![img](210303.assets/lab_diagram_DynamoDB Data Loading.png)
+![lab_diagram_DynamoDB Data Loading](https://user-images.githubusercontent.com/77096463/110243773-27408700-7f9f-11eb-9446-bcddaa99ad4b.png)
 
 <br>
 
