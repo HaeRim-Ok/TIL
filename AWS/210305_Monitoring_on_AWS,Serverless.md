@@ -520,18 +520,93 @@ https://myanjini.tistory.com/entry/Serverless-Framework-6-%EC%97%85%EB%A1%9C%EB%
 
 
 
+-------------------------------
+
+
+
 # **Triggering Lambda from Amazon SQS**
+
+### Lab 구성도
 
 SQS를 사용해서 람다 함수를 트리거 하는 방법 -> SQS 대기열의 메시지를 처리하고 메시지 데이터를 DynamoDB 테이블에 삽입
 
+![image](https://user-images.githubusercontent.com/77096463/110242768-dc247500-7f9a-11eb-8b1c-5c8bfa3b1fe3.png)
+
+<br>
+
+### Create IAM Policy
+
+lambda_execution_policy 이름의 정책을 아래와 같이 생성한다.
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:*:*:*",
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "dynamodb:*",
+        "sqs:*"
+      ],
+      "Effect": "Allow",
+      "Resource": "*"
+    }
+  ]
+}
 ```
+
+### Create IAM Role
+
+람다 함수를 트리거할 예정이므로 사용 사례는 'Lambda'로 선택
+
+![image](https://user-images.githubusercontent.com/77096463/110242978-c1063500-7f9b-11eb-9f55-10ea120d4ed7.png)
+
+<br>
+
+생성한 lambda_execution_policy 정책과 연결
+
+![image](https://user-images.githubusercontent.com/77096463/110242987-cc596080-7f9b-11eb-9e29-f8bf5e25ae9a.png)
+
+<br>
+
+해당 역할에 lambda_exeuction_role 이름을 붙이고 반드시 lambda_execution_policy 와 연결되어 있는지 확인한 후 생성 버튼을 누른다.
+
+![image](https://user-images.githubusercontent.com/77096463/110242995-d8ddb900-7f9b-11eb-9ccf-ce9161f6403f.png)
+
+<br>
+
+### Create the Lambda Function
+
+람다 함수를 생성한다.
+
+- 함수 이름 : SQSDynamoDB
+- 런타임 : Python3.7
+- 실행 역할 : 기존 역할 사용 -> lambda_execution_role 선택
+
+![image](https://user-images.githubusercontent.com/77096463/110243103-4a1d6c00-7f9c-11eb-91f2-a466f9f35c57.png)
+
+<br>
+
+아래의 python 코드를 lambda_function.py 영역에 작성한 후 DEPLOY 하기
+
+![image](https://user-images.githubusercontent.com/77096463/110243138-789b4700-7f9c-11eb-936f-786828deceff.png)
+
+```python
+# Lambda_Function_code
 import json
 import os
 from datetime import datetime
 
 import boto3
 
-QUEUE_NAME = os.environ['QUEUE_NAME']	# 환경 변수의 값을 가져오는 부분
+QUEUE_NAME = os.environ['QUEUE_NAME']	#환경변수 가져오기
 MAX_QUEUE_MESSAGES = os.environ['MAX_QUEUE_MESSAGES']
 DYNAMODB_TABLE = os.environ['DYNAMODB_TABLE']
 
@@ -569,64 +644,36 @@ def lambda_handler(event, context):
         print("Deleted message:", message.message_id)
 ```
 
-### Send Messages to SQS
-
-```
-[cloud_user@ip-10-1-10-237 ~]$ ls
-send_message.py
-
-[cloud_user@ip-10-1-10-237 ~]$ cat send_message.py
-#!/usr/bin/env python3.7
-# -*- coding: utf-8 -*-
-import argparse
-import logging
-import sys
-from time import sleep
-import boto3
-from faker import Faker
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--queue-name", "-q", required=True,
-                    help="SQS queue name")
-parser.add_argument("--interval", "-i", required=True,
-                    help="timer interval", type=float)
-parser.add_argument("--message", "-m", help="message to send")
-parser.add_argument("--log", "-l", default="INFO",
-                    help="logging level")
-args = parser.parse_args()
+코드에 작성된 3개의 환경 변수 (QUEUE_NAME, MAX_QUEUE_MESSAGES, DYNAMODB_TABLE) 를 가져오기 위해 환경 변수의 값을 설정한다.
 
-if args.log:
-    logging.basicConfig(
-        format='[%(levelname)s] %(message)s', level=args.log)
+![image](https://user-images.githubusercontent.com/77096463/110243244-e6e00980-7f9c-11eb-8df8-a7fb8fe331a4.png)
 
-else:
-    parser.print_help(sys.stderr)
+아래와 같이 QUEUE_NAME에는 Messages가, DynamoDB에는 Message 테이블이 생성되었음을 확인한다.
 
-sqs = boto3.client('sqs')
+[QUEUE_NAME]
 
-response = sqs.get_queue_url(QueueName=args.queue_name)		//args로 받아옴
+![image](https://user-images.githubusercontent.com/77096463/110243382-800f2000-7f9d-11eb-8f0e-e0264a26bc6e.png)
 
-queue_url = response['QueueUrl']
+<br>
 
-logging.info(queue_url)
+[DYNAMODB_TABLE]
 
-while True:
-    message = args.message
-    if not args.message:
-        fake = Faker()
-        message = fake.text()
+![image](https://user-images.githubusercontent.com/77096463/110243398-8c937880-7f9d-11eb-97f3-9cb8d24f93d3.png)
 
-    logging.info('Sending message: ' + message)
+<br>
 
-    response = sqs.send_message(
-        QueueUrl=queue_url, MessageBody=message)
+### Add a Trigger
 
-    logging.info('MessageId: ' + response['MessageId'])
-    sleep(args.interval)
-```
-0.1초 간격으로 Messages (queue 이름)을 밀어넣는다.
-```
-[cloud_user@ip-10-1-10-237 ~]$ ./send_message.py -q Messages -i 0.1
-```
+생성한 람다함수 클릭한 후 '+트리거 추가' 버튼을 클릭하여 트리거 구성 설정
 
+- SQS 대기열 : Messages
+
+![image](https://user-images.githubusercontent.com/77096463/110243522-18a5a000-7f9e-11eb-8b51-bcd51cfd8861.png)
+
+<br>
+
+에러 발생 (추후 수정)
+
+![image](https://user-images.githubusercontent.com/77096463/110243589-63271c80-7f9e-11eb-819e-cb4dc00063bd.png)
