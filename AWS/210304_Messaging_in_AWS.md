@@ -445,8 +445,9 @@ Lambda 함수의 코드 수정 (파일 이름 + SMS 문자 발송되는 코드)
 - 메시지가 있으면 바로 가져오고 없으면 올 때까지 기다림
 - 1초부터 20초까지 설정이 가능 (기본은 20초)
 - ReceiveMessage 요청에서 WaitTimeSeconds를 0 보다 크면 큐 설정의 ReceiveMessageWaitTimeSeconds 값 보다 우선으로 처리
-<<<<<<< Updated upstream:AWS/210304_Messaging_in_AWS.md
-=======
+
+  <<<<<<< Updated upstream:AWS/210304_Messaging_in_AWS.md
+  =======
 
 <br>
 
@@ -748,5 +749,3 @@ while i < 10000:
 https://aws.amazon.com/ko/sqs/features/
 
 ![image](https://user-images.githubusercontent.com/77096463/109931976-ef221580-7d0c-11eb-9e91-6822d8823dce.png)
-
->>>>>>> Stashed changes:AWS/210304.md
