@@ -318,6 +318,274 @@ Creating default alias: default -> 10.13.0 (-> v10.13.0)
 Running Node.js v10.13.0
 ```
 
+<br>
+
+----------
+
+
+
+# 소스코드 배포 (P.25~42)
+
+### 1. git을 이용한 소스코드 배포
+
+git 설치에 필요한 패키지 설치
+
+```
+[ec2-user@ip-172-XX-XX-XXX ~]$ sudo yum install curl-devel expat-devel gettext-devel openssl-devel zlib-devel
+```
+
+작업 디렉터리 생성 후 이동
+
+```
+[ec2-user@ip-172-XX-XX-XXX ~]$ cd /var
+[ec2-user@ip-172-XX-XX-XXX var]$ sudo mkdir www
+
+# www 의 경로를 ec2-user 의 소유로 변경
+[ec2-user@ip-172-XX-XX-XXX var]$ sudo chown ec2-user www
+[ec2-user@ip-172-XX-XX-XXX var]$ cd /var/www
+[ec2-user@ip-172-XX-XX-XXX www]$
+```
+
+github로부터 소스코드 가져옴
+
+```
+[ec2-user@ip-172-XX-XX-XXX www]$ git clone https://github.com/deopard/aws-exercise-a.git
+```
+
+```
+[ec2-user@ip-172-XX-XX-XXX www]$ cd aws-exercise-a/
+[ec2-user@ip-172-XX-XX-XXX aws-exercise-a]$ sudo yum install -y tree
+```
+
+소스코드 확인
+
+```
+[ec2-user@ip-172-XX-XX-XXX aws-exercise-a]$ ls -l
+total 60
+-rw-rw-r-- 1 ec2-user ec2-user   294 Mar  8 05:57 app.js
+-rw-rw-r-- 1 ec2-user ec2-user 35149 Mar  8 05:57 LICENSE
+-rw-rw-r-- 1 ec2-user ec2-user   539 Mar  8 05:57 package.json
+-rw-rw-r-- 1 ec2-user ec2-user 13432 Mar  8 05:57 package-lock.json
+drwxrwxr-x 2 ec2-user ec2-user    19 Mar  8 05:57 public
+
+[ec2-user@ip-172-XX-XX-XXX aws-exercise-a]$ cat app.js
+const express = require('express');	//Node 기반의 웹서버 모듈 가져오기
+const app = express();
+
+app.get('/', (req, res) => {	// '/'로 GET 방식의 요청이 온다면
+  res.send('AWS exercise의 A project입니다.');
+});
+
+app.listen(3000, () => {		//3000번 포트로 요청을 대기
+  console.log('Example app listening on port 3000!');
+});
+
+app.get('/health', (req, res) => {	// '/health' GET 방식의 요청이 온다면
+  res.status(200).send();			// 응답 상태 코드의 값을 200으로 설정해서 반환
+});
+```
+
+```
+[ec2-user@ip-172-XX-XX-XXX aws-exercise-a]$ cat package.json
+{
+  "name": "aws-exercise-a",
+  "version": "1.0.0",
+  "description": "AWS exercise project A",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deopard/aws-exercise-a.git"
+  },
+  "author": "Tom Kim",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/deopard/aws-exercise-a/issues"
+  },
+  "homepage": "https://github.com/deopard/aws-exercise-a#readme",
+  "dependencies": {
+    "express": "^4.16.3"		// 의존 모듈 등록 -> express 모듈이 반드시 필요 
+  }
+}
+```
+
+의존 모듈 설치
+
+- `npm` : node package manger -> node.js에서 사용하는 의존성 패키지를 쉽게 관리할 수 있도록 도와주는 프로그램 (지금 애플리케이션 실행에 필요한 외부 라이브러리를 설치해준다)
+
+```
+[ec2-user@ip-172-XX-XX-XXX aws-exercise-a]$ npm install
+added 50 packages from 47 contributors and audited 50 packages in 1.633s
+found 0 vulnerabilities
+```
+
+```
+[ec2-user@ip-172-XX-XX-XXX aws-exercise-a]$ ls ./node_modules/
+accepts              debug        finalhandler  merge-descriptors  parseurl        serve-static
+array-flatten        depd         forwarded     methods            path-to-regexp  setprototypeof
+body-parser          destroy      fresh         mime               proxy-addr      statuses
+bytes                ee-first     http-errors   mime-db            qs              type-is
+content-disposition  encodeurl    iconv-lite    mime-types         range-parser    unpipe
+content-type         escape-html  inherits      ms                 raw-body        utils-merge
+cookie               etag         ipaddr.js     negotiator         safe-buffer     vary
+cookie-signature     express      media-typer   on-finished        send
+```
+
+<br>
+
+### 2. 웹 서버와 웹 애플리케이션 서버로 이원화
+
+**웹서버** : nginx -> 정적 자원 요청에 대한 응답<br>
+**웹 애플리케이션 서버** : Phusion Passenger -> 응용 프로그램의 실행 결과 반환
+
+Phusion Passenger 설치 파일 다운로드
+
+```
+[ec2-user@ip-172-XX-XX-XXX www]$ wget https://s3.amazonaws.com/phusion-passenger/releases/passenger-5.3.6.tar.gz
+```
+
+작업 디렉터리 생성 및 압축 해제
+```
+[ec2-user@ip-172-XX-XX-XXX www]$ sudo mkdir /var/passenger
+[ec2-user@ip-172-XX-XX-XXX www]$ sudo chown ec2-user /var/passenger
+[ec2-user@ip-172-XX-XX-XXX www]$ tar -xzvf passenger-5.3.6.tar.gz -C /var/passenger
+```
+
+경로 설정
+
+```
+#현재 설정된 PATH ($PATH)에다가 /var/passenger/passenger-5.3.6/bin를 추가하여 bash_profile 내용에 추가
+[ec2-user@ip-172-XX-XX-XXX www]$ echo export PATH=/var/passenger/passenger-5.3.6/bin:$PATH >> ~/.bash_profile
+
+#bash_profile 파일 반영
+[ec2-user@ip-172-XX-XX-XXX www]$ source ~/.bash_profile
+```
+
+rvm (Ruby version manager) 설치 
+
+```
+[ec2-user@ip-172-XX-XX-XXX www]$ gpg --keyserver hkp://pool.sks-keyservers.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
+
+# stable 버전의 rvm 설치
+[ec2-user@ip-172-XX-XX-XXX www]$ curl -sSL https://get.rvm.io | bash -s stable
+
+# 현재 터미널에서 rvm 사용할 수 있도록 설정
+[ec2-user@ip-172-XX-XX-XXX www]$ source ~/.rvm/scripts/rvm
+[ec2-user@ip-172-XX-XX-XXX www]$ rvm reload
+RVM reloaded!
+
+# 루비를 설치하는 데 필요한 라이브러리 등을 설치
+[ec2-user@ip-172-XX-XX-XXX www]$ rvm requirements run
+
+# 루비 설치
+[ec2-user@ip-172-XX-XX-XXX www]$ rvm install 2.4.3
+```
+
+passenger Nginx module 설치
+- passenger와 nginx를 이어주기 위한 모듈 설치 -> 사용할 언어로 'Node.js' 선택
+
+```
+[ec2-user@ip-172-XX-XX-XXX www]$ passenger-install-nginx-module
+```
+
+<u>가상 메모리 부족하여 설치 시 문제 발생</u> -> ctrl+c 로 종료
+
+```
+Your system does not have a lot of virtual memory		
+
+Compiling Phusion Passenger works best when you have at least 1024 MB of virtual
+memory. However your system only has 983 MB of total virtual memory (983 MB
+RAM, 0 MB swap). It is recommended that you temporarily add more swap space
+before proceeding. You can do it as follows:
+
+  sudo dd if=/dev/zero of=/swap bs=1M count=1024
+  sudo mkswap /swap
+  sudo swapon /swap
+
+See also https://wiki.archlinux.org/index.php/Swap for more information about
+the swap file on Linux.
+
+If you cannot activate a swap file (e.g. because you're on OpenVZ, or if you
+don't have root privileges) then you should install Phusion Passenger through
+DEB/RPM packages. For more information, please refer to our installation
+documentation:
+
+  https://www.phusionpassenger.com/library/install/nginx/
+```
+
+가상 메모리 증설
+
+```
+[ec2-user@ip-172-XX-XX-XXX www]$ sudo dd if=/dev/zero of=/swap bs=1M count=1024
+
+[ec2-user@ip-172-XX-XX-XXX www]$ sudo mkswap /swap
+mkswap: /swap: insecure permissions 0644, 0600 suggested.
+Setting up swapspace version 1, size = 1024 MiB (1073737728 bytes)
+no label, UUID=c7a6f44b-b97b-4a55-b9a9-d2aa7d285b8f
+
+[ec2-user@ip-172-XX-XX-XXX www]$ sudo swapon /swap
+swapon: /swap: insecure permissions 0644, 0600 suggested.
+```
+
+passenger Nginx module 재설치 -> node.js 선택 & 1번 선택 -> <u>권한 오류 발생</u>
+
+```
+[ec2-user@ip-172-XX-XX-XXX www]$ passenger-install-nginx-module
+```
+
+원래 /opt/nginx 경로에 설치하려 하였으나 현재 ec2-user로 로그인되어 작업을 진행하기 때문에 권한 오류가 발생한다. 지금 ruby를 이용하여 설치를 진행하고 있기에 **rvmsudo**를 이용하여 설치를 진행하는 것이 권장된다. rvm에서 제공하는 기능인 rvmsudo는 sudo 권한을 실행하면서 ruby에 필요한 환경변수 값까지 보존해주는 기능을 제공한다.
+
+권한 부여 후 rvmsudo을 이용하여 passenger Nginx module 재설치  -> 설치에 2~30분 소요
+
+```
+[ec2-user@ip-172-XX-XX-XXX www]$ export ORIG_PATH="$PATH"
+[ec2-user@ip-172-XX-XX-XXX www]$ rvmsudo -E /bin/bash
+[root@ip-172-XX-XX-XXX www]# export PATH="$ORIG_PATH"
+[root@ip-172-XX-XX-XXX www]# export rvmsudo_secure_path=1
+[root@ip-172-XX-XX-XXX www]# /home/ec2-user/.rvm/gems/ruby-2.4.3/wrappers/ruby /var/passenger/passenger-5.3.6/bin/passenger-install-nginx-module
+```
+
+```
+# 설치 성공 메시지
+Nginx with Passenger support was successfully installed.
+
+# nginx 설정 파일 경로
+The Nginx configuration file (/opt/nginx/conf/nginx.conf)
+must contain the correct configuration options in order for Phusion Passenger
+to function correctly.
+
+This installer has already modified the configuration file for you! The
+following configuration snippet was inserted:
+
+  http {
+      ...
+      passenger_root /var/passenger/passenger-5.3.6;
+      passenger_ruby /home/ec2-user/.rvm/gems/ruby-2.4.3/wrappers/ruby;
+      ...
+  }
+
+After you start Nginx, you are ready to deploy any number of Ruby on Rails
+applications on Nginx.
+
+Press ENTER to continue.
+...
+
+[root@ip-172-XX-XX-XXX www]# exit
+exit
+[ec2-user@ip-172-XX-XX-XXX www]$
+```
+
+
+
+
+
+
+
+
+
+
 
 
 
