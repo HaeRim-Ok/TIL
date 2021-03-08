@@ -137,6 +137,7 @@ API 동작 방식 확인
 <br>
 
 API 테스트
+
 ![image](https://user-images.githubusercontent.com/77096463/110266154-94d0cf80-8000-11eb-8210-a500d2a0ff5b.png)
 
 <br>
@@ -212,3 +213,114 @@ Canary 탭 > Canary 승격
 이제 URL 접속 시 새로운 버전의 실행 결과인 999만 제공됨을 확인
 
 ![image](https://user-images.githubusercontent.com/77096463/110268418-f2ffb180-8004-11eb-89bd-50641a3dae4d.png)
+
+----------
+
+# AWS EC2 인스턴스 생성 (P.13~25)
+
+### 1. 리전 확인 및 설정
+
+리전 : us-east-1 (비용 문제 때문에)<br>
+EC2 인스턴스 생성<br>
+
+- AMI : Amazon Linux 2 AMI (**CentOS** 기반으로 AWS에 최적화되어 있는 리눅스 가상머신 이미지)
+- 인스턴스 유형 : t2.micro
+- 인스턴스 세부 정보 구성 : 나머지는 default, 퍼블릭 IP 자동 할당 영역만 '활성화'
+- 스토리지 : default
+- 태그 : 키 (Name) / 값 (exercise-instance) -> 추후 인스턴스를 용이하게 사용하기 위해 태그 부여
+- 보안 그룹 이름 : ssh / 설명 : security rule for ssh access
+- 새 키 페어 생성 -> **서버에 접속하는 키이기 때문에 분실해서도 안되며 유출해서도 안된다**
+
+아래 화면처럼 생성한 인스턴스 및 세부 정보를 확인한다.<br>
+**퍼블릭 IP와 도메인은 인스턴스가 꺼질 때 사라지고 켜질 때 새로 할당받기 때문에** EIP를 할당하는 게 좋다.
+
+![image](https://user-images.githubusercontent.com/77096463/110277397-87bfda80-8018-11eb-9c82-d711c65d2619.png)
+
+<br>
+
+### 2. EC2 인스턴스 접속
+
+ssh 접속을 위해 Server host에 생성한 인스턴스의 퍼블릭 IP 주소를 입력, Authentication User로 ec2-user를 입력한다. 인스턴스 생성 시 발급받았던 exercise key를 이용하여 접속한다.
+- ec2-user : Amazon Linux의 시스템 사용자 계정 -> 루트 권한 제외한 대부분 작업은 여기서 진행
+
+접속 성공 시, 아래와 같은 화면 출력
+
+```
+
+       __|  __|_  )
+       _|  (     /   Amazon Linux 2 AMI
+      ___|\___|___|
+
+https://aws.amazon.com/amazon-linux-2/
+No packages needed for security; 2 packages available
+Run "sudo yum update" to apply all updates.
+[ec2-user@ip-172-XX-XX-XXX ~]$
+```
+
+<br>
+
+### 3. HTTP, HTTPS도 접근 가능하도록 보안 그룹 추가하기
+
+현재 ssh 접속만 허용되어 있으므로 HTTP, HTTPS 프로토콜도 허용해주기 위해 보안 그룹을 생성한다.<br>
+- 인바운드 규칙으로 HTTP, HTTPS 선택
+
+![image](https://user-images.githubusercontent.com/77096463/110276795-4b3faf00-8017-11eb-8c18-0a25be39c0ed.png)
+
+<br>
+
+인스턴스 보안 그룹 변경 -> ssh, web 보안 그룹 모두 포함하도록 변경
+
+![image](https://user-images.githubusercontent.com/77096463/110277690-24827800-8019-11eb-835b-3dd9ea47a44d.png)
+
+<br>
+
+### 4. 서버 환경 구성 - 실습에 필요한 프로그램 설치
+
+nvm (node version manager) 설치 스크립트 가져와서 설치
+
+```
+[ec2-user@ip-172-XX-XX-XXX ~]$ curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 12819  100 12819    0     0   379k      0 --:--:-- --:--:-- --:--:--  379k
+=> Downloading nvm as script to '/home/ec2-user/.nvm'
+...
+```
+
+nvm 설치 스크립트 실행
+- `첫 번째 .` : source 의미 (환경 변수를 변경할 때 사용)  = ($ source ~/.nvm/nvm.sh)
+- `두 번째 .` : 숨김 파일/디렉터리
+- `세 번째 .` : 파일명과 확장자를 구분하는 구분자
+
+```
+[ec2-user@ip-172-XX-XX-XXX ~]$ . ~/.nvm/nvm.sh
+```
+
+10.13.0 버전의 Node.js 설치
+
+```
+[ec2-user@ip-172-XX-XX-XXX ~]$ nvm install 10.13.0
+Downloading and installing node v10.13.0...
+Downloading https://nodejs.org/dist/v10.13.0/node-v10.13.0-linux-x64.tar.xz...
+############################################################################################# 100.0%
+Computing checksum with sha256sum
+Checksums matched!
+Now using node v10.13.0 (npm v6.4.1)
+Creating default alias: default -> 10.13.0 (-> v10.13.0)
+```
+
+원하는 버전이 설치되었는지 확인
+- `node -e "command"` : 뒤의 문자열을 js 명령어로 실행 
+
+
+```
+[ec2-user@ip-172-XX-XX-XXX ~]$ node -e "console.log('Running Node.js ' + process.version)"
+Running Node.js v10.13.0
+```
+
+
+
+
+
+
+출처 : 서비스 운영이 쉬워지는 AWS 인프라 구축 가이드
