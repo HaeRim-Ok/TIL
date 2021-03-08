@@ -435,10 +435,19 @@ cookie-signature     express      media-typer   on-finished        send
 
 <br>
 
+------------------
+
+
+
 ### 2. 웹 서버와 웹 애플리케이션 서버로 이원화
 
 **웹서버** : nginx -> 정적 자원 요청에 대한 응답<br>
 **웹 애플리케이션 서버** : Phusion Passenger -> 응용 프로그램의 실행 결과 반환
+- 단독으로 동작하는 '독립형 모드'
+- 아파치 웹 서버와 연동되어 실행되는 '아파치 통합 모드'
+- nginx 웹 서버와 연동되어 실행되는 **'nginx 통합 모드'**
+
+<br>
 
 Phusion Passenger 설치 파일 다운로드
 
@@ -577,9 +586,163 @@ exit
 [ec2-user@ip-172-XX-XX-XXX www]$
 ```
 
+nginx.conf 수정
+
+```
+[ec2-user@ip-172-XX-XX-XXX www]$ sudo vi /opt/nginx/conf/nginx.conf
+```
+
+```
+# nginx.conf
+
+```
+
+nginx 서비스 시작 & EC2 인스턴스의 주소로 접속하면 서버의 응답을 받을 수 있다.
+
+```
+[ec2-user@ip-172-XX-XX-XXX www]$ sudo /opt/nginx/sbin/nginx
+```
+
+![image](https://user-images.githubusercontent.com/77096463/110288877-f9555400-802b-11eb-9353-ac2f98634b94.png)
 
 
 
+만일 nginx 서비스를 중지하고 싶다면 `sudo /opt/nginx/sbin/nginx -s stop` <br>
+만일 nginx 서비스를 재구동하고 싶다면 `sudo /opt/nginx/sbin/nginx -s reload`
+
+------------
+
+
+
+### 3. nginx, Phusion Passenger 서비스 명령어 추가
+
+/etc/init.d 경로 (서비스 스크립트가 존재하는 경로)에 스크립트 추가
+
+```
+[ec2-user@ip-172-XX-XX-XXX www]$ cd /etc/init.d
+[ec2-user@ip-172-XX-XX-XXX init.d]$ sudo vi nginx
+
+# 파일 권한 변경 -> 실행 가능한 서비스 위해
+[ec2-user@ip-172-XX-XX-XXX init.d]$ sudo chmod 755 nginx
+```
+```
+# nginx
+
+```
+
+```
+# nginx 서비스 중지
+[ec2-user@ip-172-XX-XX-XXX init.d]$ sudo service nginx stop
+Reloading systemd:                                         [  OK  ]
+Stopping nginx (via systemctl):                            [  OK  ]
+
+# nginx 서비스 실행
+[ec2-user@ip-172-XX-XX-XXX init.d]$ sudo service nginx start
+Starting nginx (via systemctl):                            [  OK  ]
+```
+
+```
+# nginx 서비스 실행 상태 확인
+[ec2-user@ip-172-XX-XX-XXX init.d]$ sudo service nginx status
+● nginx.service - SYSV: Nginx is an HTTP(S) server, HTTP(S) reverse proxy and IMAP/POP3 proxy server
+   Loaded: loaded (/etc/rc.d/init.d/nginx; bad; vendor preset: disabled)
+   Active: active (running) since Mon 2021-03-08 07:39:30 UTC; 1min 4s ago
+     Docs: man:systemd-sysv-generator(8)
+  Process: 23079 ExecStart=/etc/rc.d/init.d/nginx start (code=exited, status=0/SUCCESS)
+ Main PID: 22501 (nginx)
+   CGroup: /system.slice/nginx.service
+           ‣ 22501 nginx: master process /opt/nginx/sbin/nginx
+
+```
+
+시스템 시작 시 자동 시작 서비스에 등록
+
+```
+[ec2-user@ip-172-XX-XX-XXX init.d]$ sudo chkconfig --add nginx
+[ec2-user@ip-172-XX-XX-XXX init.d]$ sudo ntsysv
+```
+
+![image](https://user-images.githubusercontent.com/77096463/110289821-50a7f400-802d-11eb-91d9-f5b461d2ebc3.png)
+
+-------------
+
+
+
+### 4. 하나의 서버에서 두 개의 애플리케이션 서비스하기
+
+애플리케이션 추가 설정
+
+```
+[ec2-user@ip-172-XX-XX-XXX init.d]$ cd /var/www
+
+[ec2-user@ip-172-XX-XX-XXX www]$ git clone https://github.com/deopard/aws-exercise-b.git
+Cloning into 'aws-exercise-b'...
+remote: Enumerating objects: 10, done.
+remote: Total 10 (delta 0), reused 0 (delta 0), pack-reused 10
+Unpacking objects: 100% (10/10), done.
+```
+
+```
+[ec2-user@ip-172-XX-XX-XXX www]$ cd aws-exercise-b
+
+[ec2-user@ip-172-XX-XX-XXXaws-exercise-b]$ cat app.js
+const express = require('express');
+const app = express();
+
+app.get('/', (req, res) => {		// aws-exercise-a와 달라지는 부분
+  res.send('AWS exercise의 B project입니다.');
+});
+
+app.listen(3000, () => {
+  console.log('Example app listening on port 3000!');
+});
+
+app.get('/health', (req, res) => {
+  res.status(200).send();
+});
+
+[ec2-user@ip-172-XX-XX-XXX aws-exercise-b]$ npm isntall
+added 50 packages from 47 contributors and audited 50 packages in 1.31s
+found 0 vulnerabilities
+```
+
+nginx 설정 변경 -> 기존 내용은 그대로 두고 **server_name을 EC2 인스턴스의 DNS**로, **root와 passenger_startup_file을 aws-exercise-b**로 변경하여 추가
+
+```
+[ec2-user@ip-172-XX-XX-XXX aws-exercise-b]$ sudo vi /opt/nginx/conf/nginx.conf
+```
+
+```
+# nginx.conf
+...
+    server{
+        listen          80;
+        server_name <EC2의 퍼블릭 DNS>;
+        root    /var/www/aws-exercise-b/public;
+        passenger_enabled       on;
+        passenger_app_type      node;
+        passenger_startup_file  /var/www/aws-exercise-b/app.js;
+    }
+    server {
+        listen       80;
+        server_name  <EC2의 퍼블릭 IP>;
+        root         /var/www/aws-exercise-a/public;
+        passenger_enabled       on;
+        passenger_app_type      node;
+        passenger_startup_file  /var/www/aws-exercise-a/app.js;
+...
+```
+
+서버 재실행 후 접속 테스트
+
+- EC2 ip를 이용하여 웹 서버에 접속, EC2 DNS를 이용하여 웹 서버에 접속하면 각기 다른 애플리케이션이 실행되는 것을 확인 가능하다.
+
+```
+[ec2-user@ip-172-XX-XX-XXX aws-exercise-b]$ sudo service nginx restart
+Restarting nginx (via systemctl):                          [  OK  ]
+```
+
+![image](https://user-images.githubusercontent.com/77096463/110291748-9665bc00-802f-11eb-8e60-5a13beb3749e.png)
 
 
 
