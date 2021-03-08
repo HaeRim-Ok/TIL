@@ -445,3 +445,308 @@ Lambda 함수의 코드 수정 (파일 이름 + SMS 문자 발송되는 코드)
 - 메시지가 있으면 바로 가져오고 없으면 올 때까지 기다림
 - 1초부터 20초까지 설정이 가능 (기본은 20초)
 - ReceiveMessage 요청에서 WaitTimeSeconds를 0 보다 크면 큐 설정의 ReceiveMessageWaitTimeSeconds 값 보다 우선으로 처리
+<<<<<<< Updated upstream:AWS/210304_Messaging_in_AWS.md
+=======
+
+<br>
+
+### Lab 구성도
+
+![image](https://user-images.githubusercontent.com/77096463/109923886-c85ee180-7d02-11eb-83ef-3293be6545cf.png)
+
+<br>
+
+### Create a Standard SQS Queue (First terminal)
+
+터미널 접속 후 파일 목록 확인
+
+```
+[cloud_user@ip-10-0-1-10 ~]$ ls
+create_queue.py   fast_data.json    purge_queue.py   slow_consumer.py  slow_producer.py
+fast_consumer.py  fast_producer.py  queue_status.py  slow_data.json    sqs_url.py
+```
+
+<br>
+
+create_queue.py 파일 실행 -> 표준 SQS 큐 생성
+
+```
+[cloud_user@ip-10-0-1-10 ~]$ python3 create_queue.py
+https://queue.amazonaws.com/188564947610/mynewq
+```
+
+![image](https://user-images.githubusercontent.com/77096463/109924668-fb55a500-7d03-11eb-94a1-31b816236114.png)
+
+<br>
+
+https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.html create_queue참고
+
+```
+[cloud_user@ip-10-0-1-10 ~]$ cat create_queue.py
+import boto3
+
+# Create SQS client
+sqs = boto3.client('sqs')
+
+# Create a SQS queue
+response = sqs.create_queue(
+    QueueName='mynewq',
+    Attributes={
+        'DelaySeconds': '5',
+        'MessageRetentionPeriod': '86400'	#24시간
+    }
+)
+```
+
+<br>
+
+생성된 큐 URL을 sqs_url.py 파일에 등록 -> 다른 애플리케이션에서 참조하기 위해서 사용
+
+```
+[cloud_user@ip-10-0-1-10 ~]$ sudo vi sqs_url.py
+[cloud_user@ip-10-0-1-10 ~]$ cat sqs_url.py
+QUEUE_URL = 'https://queue.amazonaws.com/188564947610/mynewq'
+```
+
+<br>
+
+### Monitor the Queue (Second Terminal)
+
+https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.html get_queue_attributes 참고
+
+```python
+# queue_status.py
+import boto3
+import time
+from sqs_url import QUEUE_URL
+
+sqs = boto3.client('sqs')
+
+i = 0
+
+while i < 100000:
+    i = i + 1
+    time.sleep(1)
+    response = sqs.get_queue_attributes(
+        QueueUrl=QUEUE_URL,
+        AttributeNames=[
+            'ApproximateNumberOfMessages',
+            'ApproximateNumberOfMessagesNotVisible',
+            'ApproximateNumberOfMessagesDelayed',
+        ]
+    )
+    for attribute in response['Attributes']:
+        print(
+            response['Attributes'][attribute] +
+            ' ' +
+            attribute
+        )
+    print('')
+    print('')
+    print('')
+    print('')
+```
+
+<br>
+
+queue_status.py 파일 실행 -> 생성한 큐가 어떤 상태를 보이는지 모니터링
+
+```
+[cloud_user@ip-10-0-1-23 ~]$ python3 queue_status.py
+0 ApproximateNumberOfMessages
+0 ApproximateNumberOfMessagesNotVisible
+0 ApproximateNumberOfMessagesDelayed
+
+0 ApproximateNumberOfMessages
+0 ApproximateNumberOfMessagesNotVisible
+0 ApproximateNumberOfMessagesDelayed
+```
+
+<br>
+
+### Send Data (Third Terminal)
+
+https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.html send_message 참고
+
+```python
+# slow_producer.py
+import boto3
+import json
+import time
+from sqs_url import QUEUE_URL
+
+# Create SQS client
+sqs = boto3.client('sqs')
+
+with open('slow_data.json', 'r') as f:
+    data = json.loads(f.read())
+
+for i in data:
+    msg_body = json.dumps(i)
+    response = sqs.send_message(
+        QueueUrl=QUEUE_URL,
+        MessageBody=msg_body,
+        DelaySeconds=10,
+        MessageAttributes={
+            'JobType': {
+                'DataType': 'String',
+                'StringValue': 'NewDonor'
+            },
+            'Producer': {
+                'DataType': 'String',
+                'StringValue': 'Slow'
+            }
+        }
+    )
+    print('Added a message with 10 second delay - SLOW')
+    print(response)
+    time.sleep(1)
+```
+slow_producer.py 파일 실행
+```
+[cloud_user@ip-10-0-1-10 ~]$ python3 slow_producer.py
+Added a message with 10 second delay - SLOW
+{'MD5OfMessageBody': '65481eeda1e7e1e059481a4ffb2aae3f', 'MD5OfMessageAttributes': '3d69062df9b93571f431c178b5c5ee60', 'MessageId': 'f62f3b5c-e3a4-43f0-9161-119c8f5f91bc', 'ResponseMetadata': {'RequestId': 'd21e4e52-3465-52fe-8a58-16e8ba2aafba', 'HTTPStatusCode': 200, 'HTTPHeaders': {'x-amzn-requestid': 'd21e4e52-3465-52fe-8a58-16e8ba2aafba', 'date': 'Thu, 04 Mar 2021 07:28:16 GMT', 'content-type': 'text/xml', 'content-length': '459'}, 'RetryAttempts': 0}}
+Added a message with 10 second delay - SLOW
+{'MD5OfMessageBody': '4edb012a279423a124f8d618689c0027', 'MD5OfMessageAttributes': '3d69062df9b93571f431c178b5c5ee60', 'MessageId': '25fa96cc-d5fc-4f9a-8f57-147cb4016c1b', 'ResponseMetadata': {'RequestId': '2625d987-d068-57c5-b36c-813d5e399a81', 'HTTPStatusCode': 200, 'HTTPHeaders': {'x-amzn-requestid': '2625d987-d068-57c5-b36c-813d5e399a81', 'date': 'Thu, 04 Mar 2021 07:28:17 GMT', 'content-type': 'text/xml', 'content-length': '459'}, 'RetryAttempts': 0}}
+```
+
+```
+0 ApproximateNumberOfMessages
+0 ApproximateNumberOfMessagesNotVisible
+8 ApproximateNumberOfMessagesDelayed
+
+
+
+
+0 ApproximateNumberOfMessages
+0 ApproximateNumberOfMessagesNotVisible
+6 ApproximateNumberOfMessagesDelayed
+
+...
+
+9 ApproximateNumberOfMessages
+0 ApproximateNumberOfMessagesNotVisible
+9 ApproximateNumberOfMessagesDelayed
+
+
+
+
+15 ApproximateNumberOfMessages
+0 ApproximateNumberOfMessagesNotVisible
+9 ApproximateNumberOfMessagesDelayed
+
+
+
+
+16 ApproximateNumberOfMessages
+0 ApproximateNumberOfMessagesNotVisible
+9 ApproximateNumberOfMessagesDelayed
+...
+```
+
+<br>
+
+fast_producer.py 파일 실행
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Receive Messages and Extract Metadata (Fourth and Fifth Terminals)
+
+https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.html receive_message, delete_message 참고
+
+```python
+# fast_consumer.py
+import boto3
+import json
+import time
+from sqs_url import QUEUE_URL
+
+# Create SQS client
+sqs = boto3.client('sqs')
+
+i = 0
+
+while i < 10000:
+    i = i + 1
+    rec_res = sqs.receive_message(
+        QueueUrl=QUEUE_URL,
+        MessageAttributeNames=[
+            'All',
+        ],
+        MaxNumberOfMessages=1,
+        VisibilityTimeout=5,
+        WaitTimeSeconds=10
+    )
+    del_res = sqs.delete_message(
+        QueueUrl=QUEUE_URL,
+        ReceiptHandle=rec_res['Messages'][0]['ReceiptHandle']
+    )
+    print("RECIEVED MESSAGE (FAST CONSUMER):")
+    print('FROM PRODUCER: ' + rec_res['Messages'][0]['MessageAttributes']['Producer']['StringValue'])
+    print('JOB TYPE: ' + rec_res['Messages'][0]['MessageAttributes']['JobType']['StringValue'])
+    print('BODY: ' + rec_res['Messages'][0]['Body'])
+    print("DELETED MESSAGE (FAST CONSUMER)")
+    print("")
+    time.sleep(2)
+```
+
+```python
+# slow_consumer.py
+import boto3
+import json
+import time
+from sqs_url import QUEUE_URL
+
+# Create SQS client
+sqs = boto3.client('sqs')
+
+i = 0
+
+while i < 10000:
+    i = i + 1
+    rec_res = sqs.receive_message(
+        QueueUrl=QUEUE_URL,
+        MessageAttributeNames=[
+            'All',
+        ],
+        MaxNumberOfMessages=1,
+        VisibilityTimeout=20,
+        WaitTimeSeconds=10
+    )
+    del_res = sqs.delete_message(
+        QueueUrl=QUEUE_URL,
+        ReceiptHandle=rec_res['Messages'][0]['ReceiptHandle']
+    )
+    print("RECIEVED MESSAGE (SLOW CONSUMER):")
+    print('FROM PRODUCER: ' + rec_res['Messages'][0]['MessageAttributes']['Producer']['StringValue'])
+    print('JOB TYPE: ' + rec_res['Messages'][0]['MessageAttributes']['JobType']['StringValue'])
+    print('BODY: ' + rec_res['Messages'][0]['Body'])
+    print("DELETED MESSAGE (SLOW CONSUMER)")
+    print("")
+    time.sleep(8)
+```
+
+<br>
+
+<br>
+
+# 
+
+https://aws.amazon.com/ko/sqs/features/
+
+![image](https://user-images.githubusercontent.com/77096463/109931976-ef221580-7d0c-11eb-9e91-6822d8823dce.png)
+
+>>>>>>> Stashed changes:AWS/210304.md

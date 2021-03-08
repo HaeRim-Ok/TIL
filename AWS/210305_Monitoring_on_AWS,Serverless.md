@@ -412,6 +412,8 @@ exports.handler = (event, context, callback) => {
 ```
 <br>
 
+배포하기 위해 zip 파일로 압축
+
 ```
 [cloud_user@ip-10-99-1-4 ~]$ zip lambda_function.zip lambda_function.js
   adding: lambda_function.js (deflated 33%)
@@ -484,7 +486,7 @@ AWS Console 가서 생성한 람다 함수 확인
 ### Invoke Your Function Using AWS CLI
 
 람다 함수 호출 & 함수의 실행 결과를 파일(OUTPUT.log) 로 저장하는 명령 입력
-- `cat OUPUT.log` 를 통해 파일의 내용을 확인하면 반환값이 없기 때문에 아무 내용이 없다.
+- `cat OUPUT.log` 를 통해 파일의 내용을 확인하면 반환값이 없기 때문에 아무 내용이 없다. (null)
 
 ```
 [cloud_user@ip-10-99-1-4 ~]$ aws lambda invoke --region us-east-1 --function-name "ListS3Buckets" OUTPUT.log
@@ -501,6 +503,39 @@ CloudWatch 에서 로그 그룹 확인
 ![image](https://user-images.githubusercontent.com/77096463/110079886-04f70f80-7dcd-11eb-9e7d-ae171a0e9d48.png)
 
 <br>
+
+`cat OUTPUT.log` 명령어를 통해 반환 값을 확인하기 위해 코드 수정 -> callback 함수를 통해 호출 결과가 호출한 쪽으로 넘어간다.
+
+![image](https://user-images.githubusercontent.com/77096463/110260880-5384f380-7ff1-11eb-8b00-7d807f2f481e.png)
+
+```js
+// lambda_function.js
+const AWS = require('aws-sdk');
+
+AWS.config.update({ region: 'us-east-1' });
+
+const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
+
+exports.handler = (event, context, callback) => {
+	s3.listBuckets(
+		(err, data) => {
+			if (err) {
+				console.log("Error: ", err);
+			} else {
+				console.log("List of S3 Buckets", data.Buckets);
+                callback(null, data.Buckets);
+			}
+		}
+	);
+};
+```
+
+OUTPUT.log 파일 내용 확인
+
+```
+[cloud_user@ip-10-99-1-4 ~]$ cat OUTPUT.log
+[{"Name":"cfst-660-2792a7f96ac22227cf737205bc3-labs3bucketa-1hlzna6on4r73","CreationDate":"2021-03-08T00:13:56.000Z"},{"Name":"cfst-660-2792a7f96ac22227cf737205bc3-labs3bucketb-6bc8xv1vxtft","CreationDate":"2021-03-08T00:13:56.000Z"}]
+```
 
 
 
@@ -644,13 +679,15 @@ def lambda_handler(event, context):
         print("Deleted message:", message.message_id)
 ```
 
-
+<br>
 
 코드에 작성된 3개의 환경 변수 (QUEUE_NAME, MAX_QUEUE_MESSAGES, DYNAMODB_TABLE) 를 가져오기 위해 환경 변수의 값을 설정한다.
 
 ![image](https://user-images.githubusercontent.com/77096463/110243244-e6e00980-7f9c-11eb-8df8-a7fb8fe331a4.png)
 
-아래와 같이 QUEUE_NAME에는 Messages가, DynamoDB에는 Message 테이블이 생성되었음을 확인한다.
+<br>
+
+아래와 같이 QUEUE_NAME에는 Messages가, DynamoDB에는 Message 테이블을 환경 변수의 값으로 설정할 수 있다.
 
 [QUEUE_NAME]
 
@@ -674,6 +711,115 @@ def lambda_handler(event, context):
 
 <br>
 
-에러 발생 (추후 수정)
+트리거 구성 후 연결된 모습
 
-![image](https://user-images.githubusercontent.com/77096463/110243589-63271c80-7f9e-11eb-819e-cb4dc00063bd.png)
+![image](https://user-images.githubusercontent.com/77096463/110261494-d60eb280-7ff3-11eb-8a5c-e8b61fe0f253.png)
+
+<br>
+
+### SSH
+
+send_message.py 실행을 위한 python3.7 및 필요 모듈 설치
+
+```
+[cloud_user@ip-10-1-10-208 ~]$ sudo yum install gcc openssl-devel bzip2-devel libffi-devel
+[cloud_user@ip-10-1-10-208 ~]$ cd /opt
+[cloud_user@ip-10-1-10-208 ~]$ sudo wget https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tgz
+[cloud_user@ip-10-1-10-208 ~]$ sudo tar xzf Python-3.7.9.tgz
+[cloud_user@ip-10-1-10-208 ~]$ cd Python-3.7.9/
+[cloud_user@ip-10-1-10-208 Python-3.7.9]$ sudo ./configure --enable-optimizations
+[cloud_user@ip-10-1-10-208 Python-3.7.9]$ sudo make altinstall
+[cloud_user@ip-10-1-10-208 Python-3.7.9]$ sudo rm /usr/src/Python-3.7.9.tgz
+[cloud_user@ip-10-1-10-208 Python-3.7.9]$ cd
+[cloud_user@ip-10-1-10-208 ~]$ python3.7 -V
+Python 3.7.9
+[cloud_user@ip-10-1-10-208 ~]$ pip3.7 install boto3
+[cloud_user@ip-10-1-10-208 ~]$ pip3.7 install Faker
+```
+
+메시지 생성
+
+```
+[cloud_user@ip-10-1-10-208 ~]$ ls
+send_message.py
+
+[cloud_user@ip-10-1-10-208 ~]$ cat send_message.py
+#!/usr/bin/env python3.7
+# -*- coding: utf-8 -*-
+import argparse
+import logging
+import sys
+from time import sleep
+import boto3
+from faker import Faker
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--queue-name", "-q", required=True,
+                    help="SQS queue name")
+parser.add_argument("--interval", "-i", required=True,
+                    help="timer interval", type=float)
+parser.add_argument("--message", "-m", help="message to send")
+parser.add_argument("--log", "-l", default="INFO",
+                    help="logging level")
+args = parser.parse_args()
+
+if args.log:
+    logging.basicConfig(
+        format='[%(levelname)s] %(message)s', level=args.log)
+
+else:
+    parser.print_help(sys.stderr)
+
+sqs = boto3.client('sqs')
+
+response = sqs.get_queue_url(QueueName=args.queue_name)
+
+queue_url = response['QueueUrl']
+
+logging.info(queue_url)
+
+while True:
+    message = args.message
+    if not args.message:
+        fake = Faker()
+        message = fake.text()
+
+    logging.info('Sending message: ' + message)
+
+    response = sqs.send_message(
+        QueueUrl=queue_url, MessageBody=message)
+
+    logging.info('MessageId: ' + response['MessageId'])
+    sleep(args.interval)
+```
+
+```
+[cloud_user@ip-10-1-10-208 ~]$ ./send_message.py -q Messages -i 0.1
+[INFO] https://queue.amazonaws.com/090823763833/Messages
+[INFO] Sending message: Bad buy quickly general but new serious. Reveal onto reduce development goal Mr approach. Environmental billion sport perhaps what with she. Poor tax door give painting reason.
+[INFO] MessageId: 1315ba0b-3ea3-4d35-901b-5bfb2c79cbd0
+[INFO] Sending message: Full past today grow. Theory customer effort structure even happy. Should where local focus rule bit anything.
+Quality list necessary capital family best away. Without camera individual site.
+[INFO] MessageId: 7f9ef02d-f26f-446d-9f98-9a3a1292609c
+[INFO] Sending message: Common head government reason his marriage.
+Late develop total stage fear few. Level institution guy message take point we.
+[INFO] MessageId: 36d85b9f-d516-4228-8b97-e00dfb8350b2
+[INFO] Sending message: Boy begin carry sit art war able card. Official fact color special catch condition month morning.
+[INFO] MessageId: 4556412f-0146-4adb-b4b4-9105f435133b
+[INFO] Sending message: Democrat too trouble television. Mrs show charge. Section discover wish quite.
+Buy him manager she special. Little later evening possible son. Can whole body section side best prove possible.
+...
+```
+
+<br>
+
+CloudWatch 로그 확인
+
+![image](https://user-images.githubusercontent.com/77096463/110262548-6d293980-7ff7-11eb-8731-a590c3620e7c.png)
+
+<br>
+
+DynamoDB 테이블에 데이터가 생성됨을 확인
+
+![image](https://user-images.githubusercontent.com/77096463/110262619-95189d00-7ff7-11eb-9419-5604d7292cb0.png)

@@ -1,42 +1,118 @@
 # Managing DNS Records with AWS Route 53
 
+Route 53 : 가용성과 확장성이 우수한 DNS 웹 서비스 -> 도메인 등록, DNS 라우팅, 상태 확인 조합하여 실행
+
 ### Lab 구성도
 
 ![image-20210303094432829](210303.assets/image-20210303094432829.png)
 
+<br>
+
 ### Create the First EC2 Instance
+
+EC2 > 인스턴스 생성
+
+- AMI : Amazon Linux2 AMI
+- 인스턴스 유형 : t2.micro (Default)
+- 지역: us-east-1e
+- 퍼블릭 IP 자동 할당 : 활성화 
+- 고급 세부 정보 : 사용자 데이터 아래 이미지와 같은 내용 입력
 
 ![image-20210303094912698](210303.assets/image-20210303094912698.png)
 
+<br>
+
+보안 그룹 구성 설정
+
+- 보안 그룹 할당 : 새 보안 그룹 생성
+- 보안 그룹 이름 : SG
+- 규칙 추가 : 유형 - HTTP, 소스 - 사용자 지정
+
 ![image-20210303095002182](210303.assets/image-20210303095002182.png)
+
+<br>
+
+키 페어 생성 -> 키 페어 이름 : R53KP
 
 ![image-20210303095035968](210303.assets/image-20210303095035968.png)
 
+<br> 여기까지 첫 번째 인스턴스 생성 완료
+
 ### Create the Second EC2 Instance
+
+바로 두 번째 인스턴스를 생성한다.
+
+- AMI : Amazon Linux2 AMI
+- 인스턴스 유형 : t2.micro (Default)
+- 지역: **us-east-1d**
+- 퍼블릭 IP 자동 할당 : 활성화 
+- 고급 세부 정보 : 사용자 데이터 아래 이미지와 같은 내용 입력
 
 ![image-20210303095141794](210303.assets/image-20210303095141794.png)
 
 ![image-20210303095151932](210303.assets/image-20210303095151932.png)
 
+보안 그룹 구성 설정 -> 이번에는 '**기존 보안 그룹 선택**' 
+- 첫 번째 인스턴스 생성 시 만들었던 **SG** 보안 그룹 선택
+
 ![image-20210303095216729](210303.assets/image-20210303095216729.png)
+
+<br>
+
+키 페어 설정 -> '**기존 키 페어 (R53KP)**' 선택
 
 ![image-20210303095241884](210303.assets/image-20210303095241884.png)
 
+<br> 여기까지 두번째 인스턴스 생성 완료<br>
+실행 중인 인스턴스의 퍼블릭 IP주소를 주소창에 입력하면 Amazon Linux2 AMI 테스트 페이지를 확인할 수 있다.
+
+
 ![image-20210303104200454](210303.assets/image-20210303104200454.png)
+
+<br>
 
 ### Create the Application Load Balancer
 
+로드 밸런싱 > 로드 밸런서 > Load Balancer 생성 클릭
+- 종류 : Application Load Balancers, Network Load Balancers, and Classic Load Balancers -> 이 중에서 **Application Load Balancers** 선택 
+- 이름 : ELB
+- 체계 : 인터넷 경계
+- IP 주소 유형 : ipv4
+- 가용 영역 : us-east-1d, us-east-1e (**둘 다 선택**)
+
 ![image-20210303095516927](210303.assets/image-20210303095516927.png)
+
+<br>
+
+보안 그룹 구성 설정 -> 새 보안 그룹 생성
+- 이름 : ELBSG
+- 나머지 설정은 default
 
 ![image-20210303095548973](210303.assets/image-20210303095548973.png)
 
+<br>
+
+상태 검사 설정
+- 정상 임계 값 : 2 -> 애플리케이션 로드 밸런서 상태 검사 시 속도를 높여준다
+  - 정상 임계 값 : EC2 인스턴스를 정상으로 선언하기 전까지 발생하는 연속적인 상태 확인 성공 횟수
+
 ![image-20210303095818857](210303.assets/image-20210303095818857.png)
 
+<br>
+
+인스턴스 항목에서 모든 인스턴스를 선택한 후 '등록된 항목에 추가' 클릭 -> 등록된 대상 영역에 선택한 인스턴스가 등록됨을 확인
+
 ![image-20210303095848634](210303.assets/image-20210303095848634.png)
+
+<br>
+
+ELB 로드밸런서의 DNS 이름을 주소창에 입력하면 Amazon Linux2 AMI 테스트 페이지에 접속된다. 
 
 ![image-20210303100202945](210303.assets/image-20210303100202945.png)
 
 ![image-20210303104115470](210303.assets/image-20210303104115470.png)
+
+<br>
 
 ## Configuring Route 53 DNS Record Sets
 
