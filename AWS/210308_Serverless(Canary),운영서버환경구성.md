@@ -775,68 +775,6 @@ Restarting nginx (via systemctl):                          [  OK  ]
 
 ![image](https://user-images.githubusercontent.com/77096463/110291748-9665bc00-802f-11eb-8e60-5a13beb3749e.png)
 
--------------
-
-
-
-# AWS Auto Scaling 그룹을 이용한 다중 서버 구성 (P.44)
-
-### 1. Auto Scaling 그룹 생성
-
-EC2 인스턴스 중지 후 이미지 생성 (exercise-image)
-
-![image](https://user-images.githubusercontent.com/77096463/110294290-0164c200-8033-11eb-87c7-42418caa0f37.png)
-
-<br>
-
-모든 설정을 default로 설정하고 exercise-image 이름의 AMI를 생성한다. 이를 이용하여 어떤 사양, 보안 그룹 등의 인스턴스를 띄울 지 정의하는 시작 템플릿을 생성한다. 
-
-![image](https://user-images.githubusercontent.com/77096463/110396504-7546af00-80b3-11eb-9a8b-9614b0f5c609.png)
-
-<br>
-
-우선 시작 템플릿 생성 메뉴를 선택한 뒤, 사용할  AMI로 방금 생성한 exercise-image를 선택한다. <br>
-인스턴스 유형은 비용 문제로 인해 t2.micro로 선택하고 exercise-key 키페어를 선택한다.
-
-![image](https://user-images.githubusercontent.com/77096463/110396807-028a0380-80b4-11eb-883d-ae2d24819f2f.png)
-
-<br>
-
-네트워킹 플랫폼은 VPC로, 보안 그룹은 앞전에 생성한 web 보안 그룹과 ssh 보안 그룹을 선택한다. 
-
-![image](https://user-images.githubusercontent.com/77096463/110397038-74fae380-80b4-11eb-9ed8-ed3160ed2d31.png)
-
-<br>
-
-모든 설정이 완료되면 exercise-launch-template 이름의 시작 템플릿이 만들어진다.
-
-![image](https://user-images.githubusercontent.com/77096463/110397248-d1f69980-80b4-11eb-8193-2c98abff7301.png)
-
-<br>
-
-EXERCISE-GROUP 이름의 Auto Scaling 그룹을 생성한다. 시작 템플릿은 exercise-launch-template으로 설정, 버전도 Default로 설정한다. 
-
-![image](https://user-images.githubusercontent.com/77096463/110397377-1a15bc00-80b5-11eb-995a-a9a568174d38.png)
-
-<br>
-
-기본 VPC를 네트워크로 설정하고 서브넷은 각기 다른 두 개의 서브넷을 임의로 선택한다.
-
-![image](https://user-images.githubusercontent.com/77096463/110397583-71b42780-80b5-11eb-9524-5be3b0a655ab.png)
-
-<br>
-
-최소 용량은 1, 최대 용량은 2로 설정한다. 즉, 최소 1개의 인스턴스는 존재해야 하며 최대 2개의 인스턴스까지 존재할 수 있다는 의미이다. <br>인스턴스 수를 자동으로 조절하기 위한 조정 정책으로 평균 CPU 사용률 80%를 기준으로  잡는다. 
-
-![image](https://user-images.githubusercontent.com/77096463/110295975-1e01f980-8035-11eb-93d8-e82d2e87bf48.png)
-
-
-
-모든 설정이 완료되었다면 Auto Scaling 그룹을 최종적으로 생성하기 전 마지막으로 설정한 사항을 검토하는데, 이 때 **시작 템플릿**과 **가용 영역** 설정이 제일 중요하다<br>
-
-Auto Scaling 그룹이 생성되면 인스턴스 하나가 실행 중임을 확인 (Auto Scaling 그룹 설정 때문에)
-
-![image](https://user-images.githubusercontent.com/77096463/110296455-b26c5c00-8035-11eb-9262-e92e3a10fe87.png)
 
 
 
