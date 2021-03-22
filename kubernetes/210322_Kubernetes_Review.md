@@ -47,7 +47,7 @@ pod 생성
 [root@master vagrant]# kubectl apply -f my_hello_pod.yml 
 pod/hello-pod created
 ```
-```
+```yaml
 [root@master vagrant]# cat my_hello_pod.yml
 apiVersion: v1
 kind: Pod
@@ -88,9 +88,9 @@ Hello, World (on K8S)!
 
 <br>
 
-service 생성 (외부에서도 접근하고 사용할 수 있게끔)
+service yaml 파일 생성 (외부에서도 접근하고 사용할 수 있게끔)
 
-```
+```yaml
 [root@master vagrant]# cat my_hello_svc.yml 
 apiVersion: v1
 kind: Service
@@ -105,7 +105,7 @@ spec:
  type: NodePort
 ```
 
-service 등록 및 확인
+service 생성 및 확인
 
 - 외부에서 사용할 때는 31827번으로 접근
 
@@ -212,7 +212,7 @@ gihyodocker/echo                     latest     3dbbae6eb30d   3 years ago     7
 
 yaml 파일 작성
 
-```
+```yaml
 [root@master vagrant]# vi simple-pod.yaml
 [root@master vagrant]# cat simple-pod.yaml 
 apiVersion: v1
@@ -280,57 +280,418 @@ simple-echo
 
 <br>
 
+# ReplicaSet
 
+yaml 파일 작성 -> 1개의 pod 당 2개의 컨테이너 생성 -> 총 6개의 컨테이너 생성됨
 
+```yaml
+[root@master vagrant]# vi simple-replicas.yaml
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+ name: echo
+ labels:
+  app: echo	//replica sets의 자체 레이블
+spec:
+ replicas: 3
+ selector:
+  matchLabels:
+   app: simple-echo
+ template:
+  metadata:
+   labels:
+    app: simple-echo
+  spec:
+   containers:
+   - name: nginx
+     image: gihyodocker/nginx:latest
+     env: 
+     - name: BACKEND_HOST
+       value: localhost:8080
+     ports:
+     - containerPort: 80
+   - name: echo
+     image: gihyodocker/echo:latest
+     ports:
+     - containerPort: 8080
+```
 
+replica set 생성 및 확인
+```
+[root@master vagrant]# kubectl apply -f simple-replicas.yaml
+replicaset.apps/echo created
 
+[root@master vagrant]# kubectl get replicaset
+NAME                    DESIRED   CURRENT   READY   AGE
+basic-auth-6fdd6978b8   1         1         1       25d
+echo                    3         3         0       7s
+```
 
+replica set ip 주소 확인 및 접속
 
-# 클라우드에 k8s 설치
+```
+[root@master vagrant]# kubectl get pods -o wide
+NAME                          READY   STATUS    RESTARTS   AGE     IP                NODE    NOMINATED NODE   READINESS GATES
+echo-b22m6                    2/2     Running   0          43s     192.168.104.54    node2   <none>           <none>
+echo-cnfnr                    2/2     Running   0          43s     192.168.104.52    node2   <none>           <none>
+echo-slr46                    2/2     Running   0          43s     192.168.166.190   node1   <none>           <none>
 
-AWS : EKS / 구글 : kops (기존 AWS의 EC2에 설치 가능)
+[root@master vagrant]# curl 192.168.104.54:8080
+Hello Docker!!
+[root@master vagrant]# curl 192.168.104.52:8080
+Hello Docker!!
+[root@master vagrant]# curl 192.168.166.190:8080
+Hello Docker!!
+```
 
-- Minikube : 운영환경에서 적합하지 않음 
-- Master와 작업 진행하는 Worker 노드 사용 권장
+데이터를 필터링하여 검색 -> app이 simple-echo인 파드 검색
+
+```
+[root@master vagrant]# kubectl get pods --selector app=simple-echo
+NAME         READY   STATUS    RESTARTS   AGE
+echo-b22m6   2/2     Running   0          10m
+echo-cnfnr   2/2     Running   0          10m
+echo-slr46   2/2     Running   0          10m
+```
 
 <br>
 
-### 1. 작업환경 구축
+# Deployment
 
-**가상머신** : ubuntu 18.04 준비 (t2.micro) ->US리전
+Deployment를 위한 yaml 파일 작성
 
-**kops 설치**
+```yaml
+[root@master vagrant]# vi simple-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: echo
+ labels:
+  app: echo
+spec:
+ replicas: 4
+ selector:
+  matchLabels:
+   app: my-echo
+ template:
+  metadata:
+   lables:
+    app: my-echo
+  spec:
+   containers:
+   - name: nginx
+     image: gihyodocker/nginx:latest
+     env: 
+     - name: BACKEND_HOST
+       value: localhost:8080
+     ports:
+     - containerPort: 80
+   - name: echo
+     image: gihyodocker/echo:latest
+     env:
+     - name: HOGE
+       value: fuga
+     ports:
+     - containerPort: 8080
+```
+
+Deployment 생성 및 확인
 
 ```
-$ wget -O kops https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest)
+[root@master vagrant]# kubectl apply -f simple-deployment.yaml 
+deployment.apps/echo created
+
+[root@master vagrant]# kubectl get pods
+NAME                          READY   STATUS        RESTARTS   AGE
+echo-786c577d9-fvgw8          2/2     Running       0          34s
+echo-786c577d9-rppfc          2/2     Running       0          51s
+echo-786c577d9-v8d8f          2/2     Running       0          51s
+echo-786c577d9-vs5ln          2/2     Running       0          35s
 ```
 
-**kubectl 설치**
-
-**IAM - Group 생성 -> User 생성**
-
-
-
-**AWS CLI 설치**
-
-**AWS CLI 설정**
+라벨이 app=echo인 파드, 레플리카셋, 배포 목록 확인 -> 데이터 필터링
 
 ```
-$ aws configure
+[root@master vagrant]# kubectl get pod,rs,deployment --selector app=echo
+NAME                       READY   STATUS    RESTARTS   AGE
+pod/echo-786c577d9-fvgw8   2/2     Running   0          93s
+pod/echo-786c577d9-rppfc   2/2     Running   0          110s
+pod/echo-786c577d9-v8d8f   2/2     Running   0          110s
+pod/echo-786c577d9-vs5ln   2/2     Running   0          94s
+
+NAME                                   DESIRED   CURRENT   READY   AGE
+replicaset.extensions/echo-786c577d9   4         4         4       111s
+
+NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.extensions/echo   4/4     4            4           112s
+```
+deployment echo의 롤아웃 기록 확인
+
+- 현재 추가로 업데이트 하지 않았기 때문에 REVISION 1과 함께 아무 내용 출력하지 않음
+
+```
+[root@master vagrant]# kubectl rollout history deployment echo
+deployment.extensions/echo 
+REVISION  CHANGE-CAUSE
+1         <none>
 ```
 
-**S3 버킷 생성**
+변경 작업을 수행한 후 롤아웃 기록 확인
 
-**환경 변수 설정**
+```
+[root@master vagrant]# kubectl apply -f simple-deployment.yaml --record
+deployment.apps/echo configured
 
-**SSH Key Pair 생성**
+[root@master vagrant]# kubectl rollout history deployment echo
+deployment.extensions/echo 
+REVISION  CHANGE-CAUSE
+1         kubectl apply --filename=simple-deployment.yaml --record=true
+```
 
-**사용 가능한 AZ 확인**
+<br>
 
-### 클러스터 생성
+<br>
 
-**클러스터 생성을 위한 AZ 지정**
+현재까지의 상황
 
-**마스터 노드 확인, 노드 수를 조절**
+```
+[root@master vagrant]# kubectl get pod,rs,deployment
+NAME                        READY   STATUS    RESTARTS   AGE
+pod/echo-568f446568-fmpff   2/2     Running   0          3m6s
+pod/echo-568f446568-g8wsz   2/2     Running   0          3m6s
+pod/echo-568f446568-hftcl   2/2     Running   0          3m6s
+pod/echo-568f446568-k222p   2/2     Running   0          3m6s
 
-**클러스터 생성**
+NAME                                    DESIRED   CURRENT   READY   AGE
+replicaset.extensions/echo-568f446568   4         4         4       3m6s
+
+NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.extensions/echo   4/4     4            4           3m6s
+```
+
+<br>
+
+replicaset개수 3개로 바꾸고 적용한 후 롤아웃 확인
+
+```
+[root@master vagrant]# vi simple-deployment.yaml 
+
+[root@master vagrant]# kubectl apply -f simple-deployment.yaml --record
+deployment.apps/echo configured
+
+[root@master vagrant]# kubectl rollout history deployment echo
+deployment.extensions/echo 
+REVISION  CHANGE-CAUSE
+1         kubectl apply --filename=simple-deployment.yaml --record=true
+```
+
+```
+[root@master vagrant]# kubectl rollout history deployment echo
+deployment.extensions/echo 
+REVISION  CHANGE-CAUSE
+1         kubectl apply --filename=simple-deployment.yaml --record=true
+
+[root@master vagrant]# kubectl get pod,rs,deployment
+NAME                        READY   STATUS        RESTARTS   AGE
+pod/echo-568f446568-fmpff   2/2     Running       0          5m47s
+pod/echo-568f446568-g8wsz   2/2     Running       0          5m47s
+pod/echo-568f446568-hftcl   0/2     Terminating   0          5m47s
+pod/echo-568f446568-k222p   2/2     Running       0          5m47s
+
+NAME                                    DESIRED   CURRENT   READY   AGE
+replicaset.extensions/echo-568f446568   3         3         3       5m47s
+
+NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.extensions/echo   3/3     3            3           5m47s
+```
+
+<br>
+
+echo 컨테이너의 <u>환경 변수 삭제 후</u> 적용 롤아웃
+
+```
+[root@master vagrant]# vi simple-deployment.yaml 
+[root@master vagrant]# kubectl apply -f simple-deployment.yaml --record
+deployment.apps/echo configured
+
+[root@master vagrant]# kubectl rollout history deployment echo
+deployment.extensions/echo 
+REVISION  CHANGE-CAUSE
+1         kubectl apply --filename=simple-deployment.yaml --record=true
+2         kubectl apply --filename=simple-deployment.yaml --record=true
+```
+
+<br>
+
+revision=1과 revision=2의 내용 각각 확인
+
+```
+[root@master vagrant]# kubectl rollout history deployment echo --revision=1
+deployment.extensions/echo with revision #1
+Pod Template:
+  Labels:	app=my-echo
+	pod-template-hash=568f446568
+  Annotations:	kubernetes.io/change-cause: kubectl apply --filename=simple-deployment.yaml --record=true
+  Containers:
+   nginx:
+    Image:	gihyodocker/nginx:latest
+    Port:	80/TCP
+    Host Port:	0/TCP
+    Environment:
+      BACKEND_HOST:	localhost:8080
+    Mounts:	<none>
+   echo:
+    Image:	gihyodocker/echo:latest
+    Port:	8080/TCP
+    Host Port:	0/TCP
+    Environment:
+      HOGE:	fuga
+    Mounts:	<none>
+  Volumes:	<none>
+```
+
+```
+[root@master vagrant]# kubectl rollout history deployment echo --revision=2
+deployment.extensions/echo with revision #2
+Pod Template:
+  Labels:	app=my-echo
+	pod-template-hash=6b4dbbb464
+  Annotations:	kubernetes.io/change-cause: kubectl apply --filename=simple-deployment.yaml --record=true
+  Containers:
+   nginx:
+    Image:	gihyodocker/nginx:latest
+    Port:	80/TCP
+    Host Port:	0/TCP
+    Environment:
+      BACKEND_HOST:	localhost:8080
+    Mounts:	<none>
+   echo:
+    Image:	gihyodocker/echo:latest
+    Port:	8080/TCP
+    Host Port:	0/TCP
+    Environment:	<none>
+    Mounts:	<none>
+  Volumes:	<none>
+```
+
+revision=1로 롤백
+
+- `kubectl rollout history deployment echo` : REVISION 2,3으로 변경됨
+- `kubectl rollout history deployment echo --revision=3` : REVISION 3 내용을 보면 환경변수 내역이 다시 돌아왔음을 확인
+
+```
+[root@master vagrant]# kubectl rollout undo deployment echo --to-revision=1
+deployment.extensions/echo rolled back
+
+[root@master vagrant]# kubectl rollout history deployment echo
+deployment.extensions/echo 
+REVISION  CHANGE-CAUSE
+2         kubectl apply --filename=simple-deployment.yaml --record=true
+3         kubectl apply --filename=simple-deployment.yaml --record=true
+
+[root@master vagrant]# kubectl rollout history deployment echo --revision=3
+deployment.extensions/echo with revision #3
+Pod Template:
+  Labels:	app=my-echo
+	pod-template-hash=568f446568
+  Annotations:	kubernetes.io/change-cause: kubectl apply --filename=simple-deployment.yaml --record=true
+  Containers:
+   nginx:
+    Image:	gihyodocker/nginx:latest
+    Port:	80/TCP
+    Host Port:	0/TCP
+    Environment:
+      BACKEND_HOST:	localhost:8080
+    Mounts:	<none>
+   echo:
+    Image:	gihyodocker/echo:latest
+    Port:	8080/TCP
+    Host Port:	0/TCP
+    Environment:
+      HOGE:	fuga
+    Mounts:	<none>
+  Volumes:	<none>
+```
+
+<br>
+
+이후 같은 작업 반복 후 파드의 변화 내역을 보면 파드 이름이 568f446568(환경변수 o) 혹은 6b4dbbb464(환경변수 x) 로 계속 변화함을 확인
+
+```
+#revision1 (echo 컨테이너 환경변수 존재)
+NAME                        READY   STATUS    RESTARTS   AGE
+pod/echo-568f446568-fmpff   2/2     Running   0          6m47s
+pod/echo-568f446568-g8wsz   2/2     Running   0          6m47s
+pod/echo-568f446568-k222p   2/2     Running   0          6m47s
+
+NAME                                    DESIRED   CURRENT   READY   AGE
+replicaset.extensions/echo-568f446568   3         3         3       6m47s
+
+NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.extensions/echo   3/3     3            3           6m47s
+
+
+
+
+#revision2 (echo 컨테이너 환경변수 삭제)
+NAME                        READY   STATUS    RESTARTS   AGE
+pod/echo-6b4dbbb464-7qljp   2/2     Running   0          2m19s
+pod/echo-6b4dbbb464-b6cgc   2/2     Running   0          2m2s
+pod/echo-6b4dbbb464-msr5s   2/2     Running   0          2m11s
+
+NAME                                    DESIRED   CURRENT   READY   AGE
+replicaset.extensions/echo-568f446568   0         0         0       11m
+replicaset.extensions/echo-6b4dbbb464   3         3         3       2m19s
+
+NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.extensions/echo   3/3     3            3           11m
+
+
+
+#revision3 (환경 변수 있음)
+[root@master vagrant]# kubectl get pod,rs,deployment
+NAME                        READY   STATUS    RESTARTS   AGE
+pod/echo-568f446568-97x6h   2/2     Running   0          91s
+pod/echo-568f446568-b72jz   2/2     Running   0          81s
+pod/echo-568f446568-xdvpn   2/2     Running   0          73s
+
+NAME                                    DESIRED   CURRENT   READY   AGE
+replicaset.extensions/echo-568f446568   3         3         3       19m
+replicaset.extensions/echo-6b4dbbb464   0         0         0       10m
+
+NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.extensions/echo   3/3     3            3           19m
+
+
+
+#revision4 ((환경 변수 없음))
+[root@master vagrant]# kubectl get pod,rs,deployment
+NAME                        READY   STATUS        RESTARTS   AGE
+pod/echo-6b4dbbb464-ffd4j   2/2     Running       0          31s
+pod/echo-6b4dbbb464-m9qs5   2/2     Running       0          23s
+pod/echo-6b4dbbb464-vxvzj   2/2     Running       0          15s
+
+NAME                                    DESIRED   CURRENT   READY   AGE
+replicaset.extensions/echo-568f446568   0         0         0       22m
+replicaset.extensions/echo-6b4dbbb464   3         3         3       13m
+
+NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.extensions/echo   3/3     3            3           22m
+
+```
+
+<br>
+
+rollout history 내역에 코멘트를 추가하고 싶을 때
+
+```
+[root@master vagrant]# kubectl annotate deployment/echo kubernetes.io/change-cause="not exists environment variables"
+deployment.extensions/echo annotated
+
+[root@master vagrant]# kubectl rollout history deployment echo
+deployment.extensions/echo 
+REVISION  CHANGE-CAUSE
+3         kubectl apply --filename=simple-deployment.yaml --record=true
+4         not exists environment variables
+```
+
