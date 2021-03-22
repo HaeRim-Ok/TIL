@@ -38,7 +38,7 @@ VPC : Virtual Private Cloud(Network) > aws에서 구축하는 네트워크 <br>
 
 <br>
 
-# k8s 실습
+# k8s 실습 (pod, svc)
 
 pod 생성 
 ```
@@ -195,8 +195,92 @@ vagrantFile을 보면 30403포트가 열려있기 때문에 svc의 포트를 변
 
 ![image](https://user-images.githubusercontent.com/77096463/111943203-4c450600-8b18-11eb-8dae-d0648e0e6380.png)
 
+<br>
+
+# nginx-proxy, echo 애플리케이션을 pod로 배포
+
+이미지 가져오기
+
+```
+[root@master vagrant]# docker pull gihyodocker/nginx:latest
+[root@master vagrant]# docker pull gihyodocker/echo:latest
+
+[root@master vagrant]# docker images | grep gihyodocker
+gihyodocker/nginx                    latest     88f12faf6a8a   2 years ago     155MB
+gihyodocker/echo                     latest     3dbbae6eb30d   3 years ago     733MB
+```
+
+yaml 파일 작성
+
+```
+[root@master vagrant]# vi simple-pod.yaml
+[root@master vagrant]# cat simple-pod.yaml 
+apiVersion: v1
+kind: Pod
+metadata:
+ name: simple-echo
+spec:
+ containers:
+ - name: nginx
+   image: gihyodocker/nginx:latest
+   env: 
+   - name: BACKEND_HOST
+     value: localhost:8080
+   ports:
+   - containerPort: 80
+ - name: echo
+   image: gihyodocker/echo:latest
+   ports:
+   - containerPort: 8080
+```
+
+pod 생성
+
+```
+[root@master vagrant]# kubectl apply -f simple-pod.yaml
+pod/simple-echo created
+
+[root@master vagrant]# kubectl get pods
+NAME                          READY   STATUS    RESTARTS   AGE
+basic-auth-6fdd6978b8-mwk99   2/2     Running   0          5h
+hello-pod                     1/1     Running   0          22m
+simple-echo                   2/2     Running   0          18s
+```
+
+ip주소 호출
+
+```
+[root@master vagrant]# kubectl get pods -o wide
+NAME                          READY   STATUS    RESTARTS   AGE    IP                NODE    NOMINATED NODE   READINESS GATES
+simple-echo                   2/2     Running   0          45s    192.168.104.50    node2   <none>           <none>
+
+[root@master vagrant]# curl 192.168.104.50:8080
+Hello Docker!!
+[root@master vagrant]# curl 192.168.104.50:80
+Hello Docker!! 
+```
+
+simple-echo 파드로 접속
+```
+[root@master vagrant]# kubectl exec -it simple-echo sh -c nginx 
+# hostname
+simple-echo
+# exit
+```
+로그 확인
+```
+[root@master vagrant]# kubectl logs simple-echo -c nginx
+[root@master vagrant]# kubectl logs simple-echo -c echo
+2021/03/22 06:47:23 start server
+2021/03/22 06:55:49 received request
+2021/03/22 06:55:55 received request
+```
+
+
 
 <br>
+
+
 
 
 
