@@ -45,6 +45,11 @@
 - [210323_kops](kubernetes/210323_kops.md)
 - [210323_Kubernetes_Review2](kubernetes/210323_Kubernetes_Review2.md)
 - [210324_kops2](kubernetes/210324_kops2.md)
+- [210325_pv,pvc](kubernetes/210325_pv,pvc.md)
+
+<br>
+
+<br>
 
 ## git
 - [git-command](git/git-command.md)
