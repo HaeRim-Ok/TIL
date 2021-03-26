@@ -311,18 +311,7 @@ ansible-server 호스트에서 /etc/ansible/hosts 파일 하위에 아래 내용
 ```
 Vagrant.configure("2") do |config|
   config.vm.define:"ansible-node01" do |cfg|
-    cfg.vm.box = "centos/7"
-    cfg.vm.provider:virtualbox do |vb|
-        vb.name="Ansible-Node01"
-        vb.customize ["modifyvm", :id, "--cpus", 1]
-        vb.customize ["modifyvm", :id, "--memory", 1024]
-    end
-    cfg.vm.host_name="ansible-node01"
-    cfg.vm.synced_folder ".", "/vagrant", disabled: false
-    cfg.vm.network "public_network", ip: "172.20.10.11"
-    cfg.vm.network "forwarded_port", guest: 22, host: 19211, auto_correct: false, id: "ssh"
-    cfg.vm.network "forwarded_port", guest: 80, host: 10080
-    cfg.vm.provision "shell", path: "bash_ssh_conf_4_CentOs.sh"
+...
   end
 
   config.vm.define:"ansible-node02" do |cfg|
@@ -341,25 +330,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.define:"ansible-server" do |cfg|
-    cfg.vm.box = "centos/7"
-    cfg.vm.provider:virtualbox do |vb|
-        vb.name="Ansible-Server"
-        vb.customize ["modifyvm", :id, "--cpus", 2]
-        vb.customize ["modifyvm", :id, "--memory", 2048]
-    end
-    cfg.vm.host_name="ansible-server"
-    cfg.vm.synced_folder ".", "/vagrant", disabled: true
-    cfg.vm.network "public_network", ip: "172.20.10.10"
-    cfg.vm.network "forwarded_port", guest: 22, host: 19210, auto_correct: false, id: "ssh"
-    cfg.vm.network "forwarded_port", guest: 8080, host: 58080
-    # cfg.vm.network "forwarded_port", guest: 9000, host: 59000
-    cfg.vm.provision "shell", path: "bootstrap.sh"  
-    # cfg.vm.provision "file", source: "Ansible_env_ready.yml", destination: "Ansible_env_ready.yml"
-    # cfg.vm.provision "shell", inline: "ansible-playbook Ansible_env_ready.yml"
-    # cfg.vm.provision "shell", path: "add_ssh_auth.sh", privileged: false
-
-    # cfg.vm.provision "file", source: "Ansible_ssh_conf_4_CentOS.yml", destination: "Ansible_ssh_conf_4_CentOS.yml"
-    # cfg.vm.provision "shell", inline: "ansible-playbook Ansible_ssh_conf_4_CentOS.yml"
+ ...
   end
 end
 ```
@@ -564,6 +535,8 @@ ansible 호스트에 등록된 모든 호스트(all) 에 ping 명령어 전달
 
 ansible-node01과 ansible-node02 노드에 명령어를 일일이 입력하지 않아도 ansible-server 노드에서 아래 명령어 통해 한꺼번에 결과 확인 가능
 
+- `-m` : 모듈 선택
+
 ```
 [vagrant@ansible-server ~]$ ansible all -m shell -a "uptime"
 172.20.10.12 | CHANGED | rc=0 >>
@@ -574,5 +547,184 @@ ansible-node01과 ansible-node02 노드에 명령어를 일일이 입력하지 �
 
 <br>
 
+/etc/ansible/hosts 파일 아래와 같이 코드 추가 
 
+```
+[nginx]
+172.20.10.11
+172.20.10.12
+
+[webserver]
+172.20.10.11
+
+[backupserver]
+172.20.10.12
+```
+
+아래와 같이 필요한 그룹에 명령어를 수행 가능
+```
+[vagrant@ansible-server ~]$ ansible webserver -m ping
+172.20.10.11 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    }, 
+    "changed": false, 
+    "ping": "pong"
+}
+
+[vagrant@ansible-server ~]$ ansible backupserver -m shell -a "uptime"
+172.20.10.12 | CHANGED | rc=0 >>
+ 06:35:21 up  3:38,  2 users,  load average: 0.24, 0.06, 0.06
+```
+
+<br>
+
+`--list-hosts` : 어떤 호스트가 있는지 확인 가능
+
+```
+[vagrant@ansible-server ~]$ ansible backupserver -m shell -a "uptime" --list-hosts
+  hosts (1):
+    172.20.10.12
+```
+
+<br>
+
+### 6. ansible-node03 추가
+
+Vagrantfile 코드 추가 후 ansible-node03 프로비저닝
+
+```
+Vagrant.configure("2") do |config|
+  config.vm.define:"ansible-node01" do |cfg|
+...
+  end
+
+  config.vm.define:"ansible-node02" do |cfg|
+...
+  end
+
+  config.vm.define:"ansible-node03" do |cfg|
+    cfg.vm.box = "ubuntu/trusty64"
+    cfg.vm.provider:virtualbox do |vb|
+        vb.name="Ansible-Node03"
+        vb.customize ["modifyvm", :id, "--cpus", 1]
+        vb.customize ["modifyvm", :id, "--memory", 1024]
+    end
+    cfg.vm.host_name="ansible-node03"
+    cfg.vm.synced_folder ".", "/vagrant", disabled: false
+    cfg.vm.network "public_network", ip: "172.20.10.13"
+    cfg.vm.network "forwarded_port", guest: 22, host: 19213, auto_correct: false, id: "ssh"
+    cfg.vm.network "forwarded_port", guest: 80, host: 30080
+    #cfg.vm.provision "shell", path: "bash_ssh_conf_4_CentOs.sh"
+  end
+
+  config.vm.define:"ansible-server" do |cfg|
+...
+  end
+end
+```
+
+```
+PS C:\cloud\ansible> vagrant up ansible-node03
+
+PS C:\cloud\ansible> vagrant status
+Current machine states:
+
+ansible-node01            running (virtualbox)
+ansible-node02            running (virtualbox)
+ansible-node03            running (virtualbox)
+ansible-server            running (virtualbox)
+
+This environment represents multiple VMs. The VMs are all listed
+above with their current state. For more information about a specific
+VM, run `vagrant status NAME`.
+```
+
+<br>
+
+/etc/hosts와 /etc/ansible/hosts 경로 하위에 ansible-node03 호스트와 ip 추가
+
+```
+[vagrant@ansible-server ~]$ sudo vi /etc/hosts
+...
+172.20.10.10 ansible-server
+172.20.10.11 ansible-node01
+172.20.10.12 ansible-node02
+172.20.10.13 ansible-node03
+
+
+[vagrant@ansible-server ~]$ sudo vi /etc/ansible/hosts
+...
+[nginx]
+172.20.10.11
+172.20.10.12
+172.20.10.13
+
+[webserver]
+172.20.10.11
+
+[backupserver]
+172.20.10.12
+
+[ubuntu]
+172.20.10.13
+```
+
+<br>
+
+ansible-node03에 인증 정보 전달 > **실패**
+
+- `ssh-copy-id root@ansible-node03` 는 이전과 동일하게 진행하면 Permission Denied 에러 발생
+
+```
+[vagrant@ansible-server ~]$ ssh-copy-id root@ansible-node03
+[vagrant@ansible-server ~]$ ssh-copy-id vagrant@ansible-node03
+```
+
+<br>
+
+ansible-node03에서 28번째 줄 값을 yes로 변경
+
+```
+vagrant@ansible-node03:~$ sudo vi /etc/ssh/sshd_config
+```
+
+```
+...
+ 26 # Authentication:
+ 27 LoginGraceTime 120
+ 28 PermitRootLogin yes
+ 29 StrictModes yes
+ ...
+```
+
+데몬 재시작하여 sshd_config 변경 사항 반영
+```
+vagrant@ansible-node03:~$ sudo /etc/init.d/ssh restart
+```
+
+<br>
+
+위의 과정 완료 후 root@anisible-node03에 인증 정보 재전달 > **성공**
+
+```
+[vagrant@ansible-server ~]$ ssh-copy-id root@ansible-node03
+...
+root@ansible-node03's password: 
+
+Number of key(s) added: 1
+
+Now try logging into the machine, with:   "ssh 'root@ansible-node03'"
+and check to make sure that only the key(s) you wanted were added.
+```
+
+<br>
+
+**:rotating_light: ansible-node03 프로비저닝 중 Connection disconnect (Timeout) 에러 발생** <br>
+: `vagrant destroy ansible-node03` 수행<br>
+(기존에 `vagrant reload ansible-node03` 혹은 `vagrant halt` -> `vagrant up` 명령어도 계속 타임아웃 에러가 나서 아예 해당 노드를 지운 후 재작업)
+
+![image](https://user-images.githubusercontent.com/77096463/112598111-7452a300-8e51-11eb-9f27-cc75d839bd27.png)
+
+<br>
 
