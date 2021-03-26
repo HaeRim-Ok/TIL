@@ -1,4 +1,4 @@
-프로비저닝** : 사용자의 요구에 맞게 시스템 자원을 할당, 배치, 배포해 두었다가 필요 시 시스템을 즉시 사용할 수 있는 상태로 미리 준비해 두는 것<br>
+**프로비저닝** : 사용자의 요구에 맞게 시스템 자원을 할당, 배치, 배포해 두었다가 필요 시 시스템을 즉시 사용할 수 있는 상태로 미리 준비해 두는 것<br>
 : 서버 자원 프로비저닝, OS 프로비저닝(Vagrant), SW 프로비저닝, 스토리지 프로비저닝 등이 있으며 Kops 도 프로비저닝 툴이라고 볼 수 있다.<br>
 
 **IoC** : Infrastructure of Code > 코드를 기반으로 인프라 관리
@@ -431,7 +431,6 @@ PING ansible-node01 (172.20.10.11) 56(84) bytes of data.
 --- ansible-node01 ping statistics ---
 3 packets transmitted, 3 received, 0% packet loss, time 2005ms
 rtt min/avg/max/mdev = 0.928/1.481/1.780/0.392 ms
-
 ```
 
 <br>
@@ -539,7 +538,41 @@ Last login: Fri Mar 26 04:27:58 2021 from 172.20.10.10
 
 <br>
 
+### 5. ansible all 명령어
 
+ansible 호스트에 등록된 모든 호스트(all) 에 ping 명령어 전달
+
+```
+[vagrant@ansible-server ~]$ ansible all -m ping
+172.20.10.12 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    }, 
+    "changed": false, 
+    "ping": "pong"
+}
+172.20.10.11 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    }, 
+    "changed": false, 
+    "ping": "pong"
+}
+```
+
+<br>
+
+ansible-node01과 ansible-node02 노드에 명령어를 일일이 입력하지 않아도 ansible-server 노드에서 아래 명령어 통해 한꺼번에 결과 확인 가능
+
+```
+[vagrant@ansible-server ~]$ ansible all -m shell -a "uptime"
+172.20.10.12 | CHANGED | rc=0 >>
+ 05:56:07 up  2:59,  2 users,  load average: 0.08, 0.03, 0.05
+172.20.10.11 | CHANGED | rc=0 >>
+ 05:56:08 up  3:21,  2 users,  load average: 0.24, 0.06, 0.06
+```
+
+<br>
 
 
 
