@@ -720,11 +720,68 @@ and check to make sure that only the key(s) you wanted were added.
 
 <br>
 
+---------------
+
 **:rotating_light: ansible-node03 프로비저닝 중 Connection disconnect (Timeout) 에러 발생** <br>
 : `vagrant destroy ansible-node03` 수행<br>
 (기존에 `vagrant reload ansible-node03` 혹은 `vagrant halt` -> `vagrant up` 명령어도 계속 타임아웃 에러가 나서 아예 해당 노드를 지운 후 재작업)
 
 ![image](https://user-images.githubusercontent.com/77096463/112598111-7452a300-8e51-11eb-9f27-cc75d839bd27.png)
+
+<br>
+
+----------
+
+Disk Space 확인
+
+```
+[vagrant@ansible-server ~]$ ansible all -m shell -a "df -h" 
+172.20.10.13 | CHANGED | rc=0 >>
+Filesystem      Size  Used Avail Use% Mounted on
+udev            493M   12K  493M   1% /dev
+tmpfs           100M  372K  100M   1% /run
+/dev/sda1        40G  1.5G   37G   4% /
+none            4.0K     0  4.0K   0% /sys/fs/cgroup
+none            5.0M     0  5.0M   0% /run/lock
+none            497M     0  497M   0% /run/shm
+none            100M     0  100M   0% /run/user
+172.20.10.12 | CHANGED | rc=0 >>
+Filesystem      Size  Used Avail Use% Mounted on
+devtmpfs        489M     0  489M   0% /dev
+tmpfs           496M     0  496M   0% /dev/shm
+tmpfs           496M  6.7M  489M   2% /run
+tmpfs           496M     0  496M   0% /sys/fs/cgroup
+/dev/sda1        40G  3.0G   38G   8% /
+tmpfs           100M     0  100M   0% /run/user/1000
+172.20.10.11 | CHANGED | rc=0 >>
+Filesystem      Size  Used Avail Use% Mounted on
+devtmpfs        489M     0  489M   0% /dev
+tmpfs           496M     0  496M   0% /dev/shm
+tmpfs           496M  6.7M  489M   2% /run
+tmpfs           496M     0  496M   0% /sys/fs/cgroup
+/dev/sda1        40G  3.0G   38G   8% /
+tmpfs           100M     0  100M   0% /run/user/1000
+```
+
+<br>
+
+Memory 확인
+
+```
+172.20.10.13 | CHANGED | rc=0 >>
+             total       used       free     shared    buffers     cached
+Mem:          993M       260M       733M       384K        13M       122M
+-/+ buffers/cache:       125M       868M
+Swap:           0B         0B         0B
+172.20.10.12 | CHANGED | rc=0 >>
+              total        used        free      shared  buff/cache   available
+Mem:           990M        102M        741M        6.7M        147M        746M
+Swap:          2.0G          0B        2.0G
+172.20.10.11 | CHANGED | rc=0 >>
+              total        used        free      shared  buff/cache   available
+Mem:           990M        104M        738M        6.7M        147M        743M
+Swap:          2.0G          0B        2.0G
+```
 
 <br>
 
