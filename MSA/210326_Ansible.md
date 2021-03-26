@@ -511,6 +511,8 @@ Last login: Fri Mar 26 04:27:58 2021 from 172.20.10.10
 
 ### 5. ansible all 명령어
 
+> 자주 사용되는 모듈 : ping, shell, user, copy, yum, apt
+
 ansible 호스트에 등록된 모든 호스트(all) 에 ping 명령어 전달
 
 ```
@@ -784,4 +786,178 @@ Swap:          2.0G          0B        2.0G
 ```
 
 <br>
+
+### 7. 사용자 관리
+
+ansible-node1, 2, 3 노드 각각 사용자 확인
+
+```
+[vagrant@ansible-node01 ~]$ cat /etc/passwd	#centOS
+[vagrant@ansible-node02 ~]$ cat /etc/passwd	#centOS
+[vagrant@ansible-node03 ~]$ cat /etc/passwd	#Ubuntu
+```
+
+<br>
+
+루트 권한으로 변경 후 ,각 노드에 한꺼번에 사용자(test1/1234) 추가<br>:heavy_exclamation_mark: 원인은 모르겠으나 처음에는 3개의 노드 모두 'Failed to connect to the host via ssh' 에러가 나더니 명령어 계속 실행하니 결국엔 순차적으로 실행된다.
+
+
+```
+[root@ansible-server ~]# ansible all -m user -a "user=test1 password=1234" -k
+SSH password: 
+[WARNING]: The input password appears not to have been hashed. The 'password'
+argument must be encrypted for this module to work properly.
+172.20.10.11 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    }, 
+    "append": false, 
+    "changed": false, 
+    "comment": "", 
+    "group": 1001, 
+    "home": "/home/test1", 
+    "move_home": false, 
+    "name": "test1", 
+    "password": "NOT_LOGGING_PASSWORD", 
+    "shell": "/bin/bash", 
+    "state": "present", 
+    "uid": 1001
+}
+172.20.10.13 | CHANGED => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    }, 
+    "changed": true, 
+    "comment": "", 
+    "create_home": true, 
+    "group": 1002, 
+    "home": "/home/test1", 
+    "name": "test1", 
+    "password": "NOT_LOGGING_PASSWORD", 
+    "shell": "", 
+    "state": "present", 
+    "system": false, 
+    "uid": 1002
+}
+172.20.10.12 | CHANGED => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    }, 
+    "changed": true, 
+    "comment": "", 
+    "create_home": true, 
+    "group": 1001, 
+    "home": "/home/test1", 
+    "name": "test1", 
+    "password": "NOT_LOGGING_PASSWORD", 
+    "shell": "/bin/bash", 
+    "state": "present", 
+    "system": false, 
+    "uid": 1001
+}
+```
+
+<br>
+
+각 노드에서 추가된 사용자 정보(test1) 확인
+
+![image](https://user-images.githubusercontent.com/77096463/112603739-c0551600-8e58-11eb-8b17-1bf903805187.png)
+
+<br>
+
+다시 vagrant 계정으로 돌아와서 test_server.txt 임의의 파일 생성
+
+```
+[vagrant@ansible-server ~]$ cat test_server.txt
+Hi, there
+Hello, Ansible.
+```
+
+<br>
+
+생성한 파일을 ansible-node01, 02, 03 노드로 배포
+
+```
+[vagrant@ansible-server ~]$ ansible all -m copy -a "src=./test_server.txt dest=/home/vagrant"
+172.20.10.13 | CHANGED => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    }, 
+    "changed": true, 
+    "checksum": "3e2c2e116653cfff4054dbe1ade8d02decfc13de", 
+    "dest": "/home/vagrant/test_server.txt", 
+    "gid": 1000, 
+    "group": "vagrant", 
+    "md5sum": "b42f3e03293b06380cf1e88e41b0a8fa", 
+    "mode": "0664", 
+    "owner": "vagrant", 
+    "size": 26, 
+    "src": "/home/vagrant/.ansible/tmp/ansible-tmp-1616747808.53-22932-19993333380715/source", 
+    "state": "file", 
+    "uid": 1000
+}
+172.20.10.12 | CHANGED => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    }, 
+    "changed": true, 
+    "checksum": "3e2c2e116653cfff4054dbe1ade8d02decfc13de", 
+    "dest": "/home/vagrant/test_server.txt", 
+    "gid": 1000, 
+    "group": "vagrant", 
+    "md5sum": "b42f3e03293b06380cf1e88e41b0a8fa", 
+    "mode": "0664", 
+    "owner": "vagrant", 
+    "secontext": "unconfined_u:object_r:user_home_t:s0", 
+    "size": 26, 
+    "src": "/home/vagrant/.ansible/tmp/ansible-tmp-1616747809.51-22930-269847588699705/source", 
+    "state": "file", 
+    "uid": 1000
+}
+172.20.10.11 | CHANGED => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    }, 
+    "changed": true, 
+    "checksum": "3e2c2e116653cfff4054dbe1ade8d02decfc13de", 
+    "dest": "/home/vagrant/test_server.txt", 
+    "gid": 1000, 
+    "group": "vagrant", 
+    "md5sum": "b42f3e03293b06380cf1e88e41b0a8fa", 
+    "mode": "0664", 
+    "owner": "vagrant", 
+    "secontext": "unconfined_u:object_r:user_home_t:s0", 
+    "size": 26, 
+    "src": "/home/vagrant/.ansible/tmp/ansible-tmp-1616747809.3-22928-96318820200933/source", 
+    "state": "file", 
+    "uid": 1000
+}
+```
+
+<br>
+
+각 노드에서 실제로 파일이 이동되었는지 확인
+
+![image](https://user-images.githubusercontent.com/77096463/112604850-f9da5100-8e59-11eb-9b56-d17c4e4975f1.png)
+
+<br>
+
+:memo:TODO : ansible-node05 노드 설치 (windows 기반) > 설치하는데 30분 정도 소요됨
+
+```
+# Ansible-Node05 (Windows2012R2)
+  config.vm.define:"ansible-node05" do |cfg|
+    cfg.vm.box = "opentable/win-2012r2-standard-amd64-nocm"
+    cfg.vm.provider:virtualbox do |vb|
+        vb.name="Ansible-Node05"
+        vb.customize ["modifyvm", :id, "--cpus", 2]
+        vb.customize ["modifyvm", :id, "--memory", 2048]
+    end
+    cfg.vm.host_name="ansible-node05"
+    cfg.vm.synced_folder ".", "/vagrant", disabled: true
+    cfg.vm.network "public_network", ip: "172.20.10.15"
+    cfg.vm.network "forwarded_port", guest: 22, host: 19215, auto_correct: false, id: "ssh"
+    cfg.vm.provision "shell", inline: "netsh firewall set opmode disable"
+  end
+```
 
