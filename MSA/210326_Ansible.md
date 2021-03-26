@@ -209,6 +209,8 @@ PS C:\cloud\ansible> vagrant ssh ansible-server
 
 ### 3. ansible-node 구축
 
+#### ansible-node01
+
 Vagrantfile에 ansible-node01 코드 추가
 
 - bash_ssh_conf_4_CentOs.sh 파일 생성
@@ -302,6 +304,8 @@ ansible-server 호스트에서 /etc/ansible/hosts 파일 하위에 아래 내용
 
 <br>
 
+#### ansible-node02
+
 마찬가지로 Vagrantfile에 ansible-node02 코드 추가
 
 ```
@@ -381,6 +385,75 @@ VM, run `vagrant status NAME`.
 
 <br>
 
+ansible-server 호스트에서 /etc/ansible/hosts 파일 하위에 아래 내용 추가
+
+```
+[vagrant@ansible-server ~]$ sudo vi /etc/ansible/hosts
+```
+
+```
+[nginx]
+172.20.10.11	#node01_address
+172.20.10.12	#node02_address
+```
+
+<br>
+
+#### 호스트 이름 등록
+
+ansible-server, ansible-node01, ansible-node02의 호스트 이름 등록
+
+```
+[vagrant@ansible-server ~]$ sudo vi /etc/hosts
+```
+
+```
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+127.0.1.1 ansible-server ansible-server
+
+172.20.10.10 ansible-server
+172.20.10.11 ansible-node01
+172.20.10.12 ansible-node02
+```
+
+<br>
+
+이후 ip 주소 대신 호스트 이름을 사용해서 ping 테스트 가능
+
+```
+[vagrant@ansible-server ~]$ ping ansible-node01
+PING ansible-node01 (172.20.10.11) 56(84) bytes of data.
+64 bytes from ansible-node01 (172.20.10.11): icmp_seq=1 ttl=64 time=1.78 ms
+64 bytes from ansible-node01 (172.20.10.11): icmp_seq=2 ttl=64 time=1.73 ms
+64 bytes from ansible-node01 (172.20.10.11): icmp_seq=3 ttl=64 time=0.928 ms
+^C
+--- ansible-node01 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2005ms
+rtt min/avg/max/mdev = 0.928/1.481/1.780/0.392 ms
+
+```
+
+<br>
+
+#### ansible-server에서 ansible-node01 혹은 ansible-node02 접속
+
+비밀번호는 vagrant로 입력
+
+```
+[vagrant@ansible-server ~]$ ssh ansible-node01
+The authenticity of host 'ansible-node01 (172.20.10.11)' can't be established.
+ECDSA key fingerprint is SHA256:aOTryAhjdWXeL34fIAzSJgrjkyUOj5VwZnN/TgNFb8M.
+ECDSA key fingerprint is MD5:4e:c1:20:55:07:e3:64:ca:d7:d3:ac:6e:73:40:13:12.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added 'ansible-node01,172.20.10.11' (ECDSA) to the list of known hosts.
+vagrant@ansible-node01's password: 
+Last login: Fri Mar 26 02:47:09 2021 from 10.0.2.2
+[vagrant@ansible-node01 ~]$ 
+```
+
+<br>
+
 **:rotating_light: xshell로 ansible-server, ansible-node 접속 방법**
 
 1. [연결 탭] 이름 : ansible-node01 / 호스트 : 127.0.0.1 / 포트 번호 : vagrant에 지정된 포트 입력 (19211)
@@ -397,4 +470,76 @@ VM, run `vagrant status NAME`.
 
 <br>
 
-### 4. 
+### 4. key 설정
+
+비대칭키 생성
+
+- 접속을 시도하는 쪽 : public key
+
+```
+[vagrant@ansible-server ~]$ ssh-keygen
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/vagrant/.ssh/id_rsa): 
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /home/vagrant/.ssh/id_rsa.
+Your public key has been saved in /home/vagrant/.ssh/id_rsa.pub.
+The key fingerprint is:
+SHA256:3RJzHrcPGlcajGswv2V0xwfErwcqF/WE7Z/UEo8dWR4 vagrant@ansible-server
+The key's randomart image is:
++---[RSA 2048]----+
+|             ooE+|
+|             o=*+|
+|          = +.=XX|
+|         . X.=+BX|
+|        S o BoO+o|
+|          .ooB.+o|
+|           oo  ..|
+|                 |
+|                 |
++----[SHA256]-----+
+
+```
+
+<br>
+
+생성한 키를 ansible-node01과 ansible-node02로 복사
+
+- ansible-server에서 ansible-node01 혹은 ansible-node02로 접속할 때 key값을 인증하지 않기 위해 키 값을 미리 복사해둠
+
+```
+[vagrant@ansible-server ~]$ ls -al ~/.ssh
+total 16
+drwx------. 2 vagrant vagrant   80 Mar 26 04:30 .
+drwx------. 4 vagrant vagrant  111 Mar 26 01:41 ..
+-rw-------. 1 vagrant vagrant  389 Mar 26 01:22 authorized_keys
+-rw-------. 1 vagrant vagrant 1679 Mar 26 04:30 id_rsa
+-rw-r--r--. 1 vagrant vagrant  404 Mar 26 04:30 id_rsa.pub
+-rw-r--r--. 1 vagrant vagrant  189 Mar 26 04:26 known_hosts
+
+[vagrant@ansible-server ~]$ ssh-copy-id root@ansible-node01
+[vagrant@ansible-server ~]$ ssh-copy-id root@ansible-node02
+
+[vagrant@ansible-server ~]$ ssh-copy-id vagrant@ansible-node01
+[vagrant@ansible-server ~]$ ssh-copy-id vagrant@ansible-node02
+```
+
+<br>
+
+명령어 수행 후 ansible-server에서 root@ansible-node01과 ansible-node01로 접속하면 패스워드 물어보지 않는다.
+
+```
+[vagrant@ansible-server ~]$ ssh root@ansible-node01
+[root@ansible-node01 ~]# 
+
+[vagrant@ansible-server ~]$ ssh ansible-node01
+Last login: Fri Mar 26 04:27:58 2021 from 172.20.10.10
+[vagrant@ansible-node01 ~]$ 
+```
+
+<br>
+
+
+
+
+
