@@ -423,7 +423,9 @@ zookeeper-server 내역에서도 kafka-server가 끊긴 메시지 확인
 
 <br>
 
-### 실습
+### Python에서 message 전송
+
+### 1. Consumer 테스트
 
 가상환경 실행 후 kafka-python 모듈 다운로드
 
@@ -444,7 +446,13 @@ from kafka import KafkaConsumer
 from json import loads
 import time
 
-consumer = KafkaConsumer()
+consumer = KafkaConsumer('quickstart-events',
+            bootstrap_servers=['127.0.0.1:9092'],
+            auto_offset_reset='earliest',
+            enable_auto_commit=True,
+            group_id='my-group',
+            # value_deserializer=lambda x: loads(x.decode('utf-8')),
+            consumer_timeout_ms=1000)
 
 start = time.time()
 
@@ -461,7 +469,115 @@ print("Elapsed: ", (time.time()-start))
 
 <br>
 
+producer에서 메시지 전송 후 kafka_consumer.py 파일 실행
 
+![image](https://user-images.githubusercontent.com/77096463/113264963-8c716900-930e-11eb-8eb9-7f564cd4660e.png)
+
+```
+(base) C:\cloud\kafka_client>python kafka_consumer.py
+Topic:quickstart-events,Partition:0,Offset:0,Key:None,Value:b'Hello, Kafka!'
+Topic:quickstart-events,Partition:0,Offset:1,Key:None,Value:b'Hello, World!'
+Topic:quickstart-events,Partition:0,Offset:2,Key:None,Value:b'This is my first message!'
+Elapsed:  1.2316091060638428
+```
+
+<br>
+
+### 2. Producer 테스트
+
+my_users_topic 토픽 생성
+
+```
+[C:\cloud\kafka_2.13-2.7.0]$ bin\windows\kafka-topics.bat --create --topic my_topic_users --bootstrap-server localhost:9092
+Created topic my_topic_users.
+```
+
+kafka_producer.py 파일 생성
+
+- 기존의 메시지는 직렬화되지 않았으므로 기존의 quickstart_events 토픽으로 설정하면 충돌할 수 있음 -> kafka_consumer.py의 토픽 변경 & 역직렬화 주석 해제
+
+```python
+from kafka import KafkaProducer
+from json import dumps
+import time
+
+# dict (key,value) -> object
+# str -> json
+
+# acks 수치가 낮을 수록 체크하지 않겠다는 뜻 -> 성능 올라감
+producer = KafkaProducer(acks=0, 
+                compression_type='gzip',
+                bootstrap_servers=['127.0.0.1:9092'],
+                value_serializer=lambda x: dumps(x).encode('utf-8')
+                )
+
+start = time.time()
+
+# 10개의 data값 전달
+for i in range(10):
+    data = {'name': 'Haerim-' + str(i)}
+    producer.send('my_topic_users', value=data)
+    producer.flush()
+
+print("Done. Elapsed time: ", (time.time()-start))
+```
+
+kafka-producer 기동
+
+```
+[C:\cloud\kafka_2.13-2.7.0]$ bin\windows\kafka-console-producer.bat --topic my_topic_users --bootstrap-server localhost:9092
+```
+
+kafka_producer.py 파일 실행
+```
+(base) C:\cloud\kafka_client>python kafka_producer.py
+Done. Elapsed time:  0.029314041137695312
+```
+
+kafka-consumer 확인
+```
+[C:\cloud\kafka_2.13-2.7.0]$ bin\windows\kafka-console-consumer.bat --topic my_topic_users --from-beginning --bootstrap-server localhost:9092
+
+
+{"name": "Haerim-0"}
+{"name": "Haerim-1"}
+{"name": "Haerim-2"}
+{"name": "Haerim-3"}
+{"name": "Haerim-4"}
+{"name": "Haerim-5"}
+{"name": "Haerim-6"}
+{"name": "Haerim-7"}
+{"name": "Haerim-8"}
+{"name": "Haerim-9"}
+```
+
+<br>
+
+kafka_producer.py 파일의 data 영역 수정 후 kafka_producer.py 파일 재실행
+
+```python
+...
+for i in range(10):
+    #data = {'name': 'Haerim-' + str(i)}
+    data = {"schema":{"type":"struct","fields":[{"type":"int32","field":"id"},{"type":"string","field":"user_id"},{"type":"string","field":"pwd"},{"type":"string","field":"NAME"},{"type":"int64","name":"org.apache.kafka.connect.data.Timestamp","version":1,"field":"created_at"}],"name":"users"},"payload":{"id":10,"user_id":"new_test10","pwd":"new_pwd10","NAME":"NEW TEST USER10","created_at":1615349727000}}
+    ...
+```
+
+kafka-consumer 확인
+```
+{"schema": {"type": "struct", "fields": [{"type": "int32", "field": "id"}, {"type": "string", "field": "user_id"}, {"type": "string", "field": "pwd"}, {"type": "string", "field": "NAME"}, {"type": "int64", "name": "org.apache.kafka.connect.data.Timestamp", "version": 1, "field": "created_at"}], "name": "users"}, "payload": {"id": 10, "user_id": "new_test10", "pwd": "new_pwd10", "NAME": "NEW TEST USER10", "created_at": 1615349727000}}
+{"schema": {"type": "struct", "fields": [{"type": "int32", "field": "id"}, {"type": "string", "field": "user_id"}, {"type": "string", "field": "pwd"}, {"type": "string", "field": "NAME"}, {"type": "int64", "name": "org.apache.kafka.connect.data.Timestamp", "version": 1, "field": "created_at"}], "name": "users"}, "payload": {"id": 10, "user_id": "new_test10", "pwd": "new_pwd10", "NAME": "NEW TEST USER10", "created_at": 1615349727000}}
+{"schema": {"type": "struct", "fields": [{"type": "int32", "field": "id"}, {"type": "string", "field": "user_id"}, {"type": "string", "field": "pwd"}, {"type": "string", "field": "NAME"}, {"type": "int64", "name": "org.apache.kafka.connect.data.Timestamp", "version": 1, "field": "created_at"}], "name": "users"}, "payload": {"id": 10, "user_id": "new_test10", "pwd": "new_pwd10", "NAME": "NEW TEST USER10", "created_at": 1615349727000}}
+{"schema": {"type": "struct", "fields": [{"type": "int32", "field": "id"}, {"type": "string", "field": "user_id"}, {"type": "string", "field": "pwd"}, {"type": "string", "field": "NAME"}, {"type": "int64", "name": "org.apache.kafka.connect.data.Timestamp", "version": 1, "field": "created_at"}], "name": "users"}, "payload": {"id": 10, "user_id": "new_test10", "pwd": "new_pwd10", "NAME": "NEW TEST USER10", "created_at": 1615349727000}}
+{"schema": {"type": "struct", "fields": [{"type": "int32", "field": "id"}, {"type": "string", "field": "user_id"}, {"type": "string", "field": "pwd"}, {"type": "string", "field": "NAME"}, {"type": "int64", "name": "org.apache.kafka.connect.data.Timestamp", "version": 1, "field": "created_at"}], "name": "users"}, "payload": {"id": 10, "user_id": "new_test10", "pwd": "new_pwd10", "NAME": "NEW TEST USER10", "created_at": 1615349727000}}
+{"schema": {"type": "struct", "fields": [{"type": "int32", "field": "id"}, {"type": "string", "field": "user_id"}, {"type": "string", "field": "pwd"}, {"type": "string", "field": "NAME"}, {"type": "int64", "name": "org.apache.kafka.connect.data.Timestamp", "version": 1, "field": "created_at"}], "name": "users"}, "payload": {"id": 10, "user_id": "new_test10", "pwd": "new_pwd10", "NAME": "NEW TEST USER10", "created_at": 1615349727000}}
+{"schema": {"type": "struct", "fields": [{"type": "int32", "field": "id"}, {"type": "string", "field": "user_id"}, {"type": "string", "field": "pwd"}, {"type": "string", "field": "NAME"}, {"type": "int64", "name": "org.apache.kafka.connect.data.Timestamp", "version": 1, "field": "created_at"}], "name": "users"}, "payload": {"id": 10, "user_id": "new_test10", "pwd": "new_pwd10", "NAME": "NEW TEST USER10", "created_at": 1615349727000}}
+{"schema": {"type": "struct", "fields": [{"type": "int32", "field": "id"}, {"type": "string", "field": "user_id"}, {"type": "string", "field": "pwd"}, {"type": "string", "field": "NAME"}, {"type": "int64", "name": "org.apache.kafka.connect.data.Timestamp", "version": 1, "field": "created_at"}], "name": "users"}, "payload": {"id": 10, "user_id": "new_test10", "pwd": "new_pwd10", "NAME": "NEW TEST USER10", "created_at": 1615349727000}}
+{"schema": {"type": "struct", "fields": [{"type": "int32", "field": "id"}, {"type": "string", "field": "user_id"}, {"type": "string", "field": "pwd"}, {"type": "string", "field": "NAME"}, {"type": "int64", "name": "org.apache.kafka.connect.data.Timestamp", "version": 1, "field": "created_at"}], "name": "users"}, "payload": {"id": 10, "user_id": "new_test10", "pwd": "new_pwd10", "NAME": "NEW TEST USER10", "created_at": 1615349727000}}
+{"schema": {"type": "struct", "fields": [{"type": "int32", "field": "id"}, {"type": "string", "field": "user_id"}, {"type": "string", "field": "pwd"}, {"type": "string", "field": "NAME"}, {"type": "int64", "name": "org.apache.kafka.connect.data.Timestamp", "version": 1, "field": "created_at"}], "name": "users"}, "payload": {"id": 10, "user_id": "new_test10", "pwd": "new_pwd10", "NAME": "NEW TEST USER10", "created_at": 1615349727000}}
+```
+
+<br>
 
 
 
